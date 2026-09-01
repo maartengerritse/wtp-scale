@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Product 1</title>
+    <link rel="stylesheet" href="resources/css/index.css" />
+  </head>
+  <body>
+    <div class="preloader neutral-background" id="preloader"></div>
+    <div class="main-container neutral-background">
+      <div class="logo-container">
+        <img src="./resources/img/logo-colour.svg" alt="Logo" class="logo" />
+      </div>
+      <div class="product-page-content-container">
+        <div class="table-container">
+          <h3>Cost Drivers</h3>
+          <div>
+            <h4>Direct Material Costs</h4>
+            <table class="table-content highlighted">
+              <tbody>
+                <tr>
+                  <td>EPS</td>
+                  <td>€0,08</td>
+                </tr>
+                <tr>
+                  <td>LDPE</td>
+                  <td>€0,01</td>
+                </tr>
+                <tr>
+                  <td>Glass</td>
+                  <td>€0,01</td>
+                </tr>
+                <tr>
+                  <td>Coated paper</td>
+                  <td>€0,001</td>
+                </tr>
+                <tr>
+                  <td>HDF</td>
+                  <td>€0,01</td>
+                </tr>
+                <tr>
+                  <td>Metal parts</td>
+                  <td>€0,007</td>
+                </tr>
+              </tbody>
+
+              <tfoot class="table-footer">
+                <tr>
+                  <td><strong>Total Material Costs</strong></td>
+                  <td><strong>€0,12</strong></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          <table class="table-content">
+            <tbody>
+              <tr>
+                <td><strong>Direct Materials</strong></td>
+                <td><strong>58.5%</strong></td>
+              </tr>
+              <tr>
+                <td>Direct Labour (China)</td>
+                <td>1.9%</td>
+              </tr>
+              <tr>
+                <td>Manufacturing Overhead</td>
+                <td>11.7%</td>
+              </tr>
+            </tbody>
+          </table>
+          <table class="table-content">
+            <tbody>
+              <tr>
+                <td><strong>Cost of Sales</strong></td>
+                <td><strong>72.1%</strong></td>
+              </tr>
+              <tr>
+                <td>GSA &amp; Other Expenses</td>
+                <td>22.6%</td>
+              </tr>
+              <tr>
+                <td>Profit before Taxes</td>
+                <td>5.2%</td>
+              </tr>
+            </tbody>
+          </table>
+          <table class="table-content">
+            <tbody>
+              <tr>
+                <td><strong>Total (ex works)</strong></td>
+                <td><strong>100%</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Total Costs</strong></td>
+                <td><strong>€0,20</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="title-and-video-container">
+          <div class="product-page-title-container">
+            <h1>Photo Frame</h1>
+            <h2>| Wood, 10 x 15 cm - 142g </h2>
+          </div>
+          <div class="product-page-video-container">
+            <video autoplay muted loop >
+              <!--the video source for product video goes here -->
+              <source src="./resources/video/product-1.mp4" type="video/mp4" />
+            </video>
+          </div>
+        </div>
+      </div>
+      <div class="orange-box">
+        <p>Find your product's cost breakdown at www.buynamics.com/dpw</p>
+      </div>
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const video = document.querySelector("video");
+        const preloader = document.getElementById("preloader");
+
+        video.addEventListener("canplaythrough", function () {
+          preloader.classList.add("hidden");
+        });
+      });
+    </script>
+  </body>
+</html>
