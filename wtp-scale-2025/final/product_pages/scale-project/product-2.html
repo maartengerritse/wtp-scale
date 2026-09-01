@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Product 2</title>
+    <link rel="stylesheet" href="resources/css/index.css" />
+  </head>
+  <body>
+    <div class="preloader neutral-background" id="preloader"></div>
+    <div class="main-container neutral-background">
+      <div class="logo-container">
+        <img src="./resources/img/logo-colour.svg" alt="Logo" class="logo" />
+      </div>
+      <div class="product-page-content-container">
+        <div class="table-container">
+          <h3>Cost Drivers</h3>
+          <div>
+            <h4>Direct Material Costs</h4>
+            <table class="table-content highlighted">
+              <tbody>
+                <tr>
+                  <td>PolyPropylene (PP)</td>
+                  <td>€0,10</td>
+                </tr>
+              </tbody>
+
+              <tfoot class="table-footer">
+                <tr>
+                  <td><strong>Total Material Costs</strong></td>
+                  <td><strong>€0,10</strong></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          <table class="table-content">
+            <tbody>
+              <tr>
+                <td><strong>Direct Materials</strong></td>
+                <td><strong>32.7%</strong></td>
+              </tr>
+              <tr>
+                <td>Direct Labour (China)</td>
+                <td>18.5%</td>
+              </tr>
+              <tr>
+                <td>Manufacturing Overhead</td>
+                <td>13.1%</td>
+              </tr>
+            </tbody>
+          </table>
+          <table class="table-content">
+            <tbody>
+              <tr>
+                <td><strong>Cost of Sales</strong></td>
+                <td><strong>64.2%</strong></td>
+              </tr>
+              <tr>
+                <td>GSA &amp; Other Expenses</td>
+                <td>30.3%</td>
+              </tr>
+              <tr>
+                <td>Profit before Taxes</td>
+                <td>5.5%</td>
+              </tr>
+            </tbody>
+          </table>
+          <table class="table-content">
+            <tbody>
+              <tr>
+                <td><strong>Total (ex works)</strong></td>
+                <td><strong>100%</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Total Costs</strong></td>
+                <td><strong>€0,32</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="title-and-video-container">
+          <div class="product-page-title-container">
+            <h1>Storage Box</h1>
+            <h2>| Plastic, 20 x 15 x 6,5 cm - 66g </h2>
+          </div>
+          <div class="product-page-video-container">
+            <video autoplay muted loop width="800">
+              <!--the video source for product video goes here -->
+              <source src="./resources/video/product-2.mp4" type="video/mp4" />
+            </video>
+          </div>
+        </div>
+      </div>
+      <div class="orange-box">
+        <p>Find your product's cost breakdown at www.buynamics.com/dpw</p>
+      </div>
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const video = document.querySelector("video");
+        const preloader = document.getElementById("preloader");
+
+        video.addEventListener("canplaythrough", function () {
+          preloader.classList.add("hidden");
+        });
+      });
+    </script>
+  </body>
+</html>
