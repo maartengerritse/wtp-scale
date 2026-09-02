@@ -3,6 +3,8 @@
 #   systemctl --user status wtp-kiosk
 [Unit]
 Description=WTP Scale kiosk service (RFID reader + local server)
+StartLimitIntervalSec=120
+StartLimitBurst=5
 After=graphical-session.target
 PartOf=graphical-session.target
 

@@ -2,6 +2,11 @@
 # Kept separate so the browser can be restarted without dropping the reader.
 [Unit]
 Description=WTP Scale kiosk browser
+# Give up after 5 failures in 2 minutes so the unit lands in `failed`, which
+# is visible, instead of retrying forever and only ever showing `activating`.
+# A missing execute bit on kiosk.sh once looped this 1000+ times unnoticed.
+StartLimitIntervalSec=120
+StartLimitBurst=5
 After=wtp-kiosk.service graphical-session.target
 Requires=wtp-kiosk.service
 PartOf=graphical-session.target
