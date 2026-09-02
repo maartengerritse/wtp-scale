@@ -184,10 +184,31 @@ class Updater(tk.Tk):
                   "wtp-kiosk.service", "wtp-browser.service"], "Restarting the kiosk")
 
     def status(self):
-        self.run(["bash", "-c",
-                  "systemctl --user --no-pager status wtp-kiosk.service | head -12; echo; "
-                  "python3 tools/validate.py"],
-                 "Status")
+        # Both units, then their recent logs. `systemctl start` prints nothing
+        # when a unit starts and then immediately dies, so the logs are the
+        # only way to see what actually happened without opening a terminal.
+        self.run(["bash", "-c", r"""
+echo "--- reader service ---"
+systemctl --user --no-pager --lines=0 status wtp-kiosk.service 2>&1 | head -6
+echo
+echo "--- browser service ---"
+systemctl --user --no-pager --lines=0 status wtp-browser.service 2>&1 | head -6
+echo
+echo "--- display session ---"
+echo "session type : ${XDG_SESSION_TYPE:-unknown}"
+echo "DISPLAY      : ${DISPLAY:-unset}"
+echo "WAYLAND      : ${WAYLAND_DISPLAY:-unset}"
+echo
+echo "--- is the page being served? ---"
+curl -sf -o /dev/null -w "  localhost:8080 -> HTTP %{http_code}
+" http://127.0.0.1:8080/state   || echo "  no answer from the reader service"
+echo
+echo "--- last 20 log lines, browser ---"
+journalctl --user -u wtp-browser.service -n 20 --no-pager 2>&1 | tail -20
+echo
+echo "--- last 10 log lines, reader ---"
+journalctl --user -u wtp-kiosk.service -n 10 --no-pager 2>&1 | tail -10
+"""], "Status")
 
 
 if __name__ == "__main__":

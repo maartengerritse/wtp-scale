@@ -8,7 +8,8 @@ PartOf=graphical-session.target
 
 [Service]
 Type=simple
-Environment=DISPLAY=:0
+# Display is discovered by kiosk.sh: a user service inherits none of the
+# desktop session env, and the answer differs between Wayland and X11.
 ExecStart=__REPO__/pi/kiosk.sh
 Restart=always
 RestartSec=5
