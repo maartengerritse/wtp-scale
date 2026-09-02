@@ -36,6 +36,11 @@ for _ in $(seq 1 60); do
   sleep 1
 done
 
+# Chromium otherwise asks the system keyring to hold its secrets, and on a
+# fresh Pi that pops a "Choose password for keyring" dialog on top of the
+# kiosk. --password-store=basic keeps it out of the keyring entirely; the
+# kiosk signs into nothing, so there are no secrets worth protecting.
+
 # A crash on the previous run otherwise triggers a "restore pages?" bubble
 # that sits on screen until someone dismisses it.
 PROFILE="${HOME}/.config/wtp-kiosk"
@@ -47,6 +52,8 @@ exec "$CHROME" \
   --kiosk \
   --user-data-dir="$PROFILE" \
   --autoplay-policy=no-user-gesture-required \
+  --password-store=basic \
+  --use-mock-keychain \
   --noerrdialogs \
   --disable-infobars \
   --disable-session-crashed-bubble \
