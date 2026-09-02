@@ -33,7 +33,7 @@
 
 :root {
   --blue: #002e5a;
-  --orange: #e8710a;
+  --orange: #ff6b26;
   --neutral: #f1f1f1;
   --white: #fff;
   --ink: #111;
@@ -88,7 +88,7 @@ html, body {
   position: absolute;
   top: var(--safe-y);
   left: var(--safe-x);
-  width: calc(var(--u) * 6);
+  width: clamp(7rem, 11vw, 13rem);
   height: auto;
   z-index: 5;
 }
@@ -99,10 +99,11 @@ video { display: block; }
 
 .welcome {
   height: 100%;
-  padding: calc(var(--safe-y) * 1.6) var(--safe-x) var(--safe-y);
+  /* Right padding keeps the text clear of the presenter in the corner. */
+  padding: calc(var(--safe-y) * 1.6) 42vw var(--safe-y) var(--safe-x);
   display: grid;
-  grid-template-rows: auto 1fr auto;
-  gap: calc(var(--u) * 1.2);
+  grid-template-rows: auto auto;
+  gap: calc(var(--u) * 3);
   justify-items: center;
   align-content: center;
   text-align: center;
@@ -124,21 +125,23 @@ video { display: block; }
 }
 
 .welcome__video {
-  min-height: 0;                /* lets the video shrink inside the grid row */
-  width: 100%;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  pointer-events: none;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  align-items: flex-end;
 }
 .welcome__video video {
-  max-height: 100%;
-  max-width: min(100%, 70vw);
-  height: auto;
+  /* Sized off the viewport height so he keeps human proportions on any
+     screen, and anchored flush to the corner: no frame, no rounding. */
+  height: 78vh;
   width: auto;
+  max-width: 46vw;
   object-fit: contain;
-  border-radius: 1.1rem;
-  box-shadow: 0 0 0 0.35rem rgba(255, 255, 255, 0.9),
-              0 1.2rem 2.5rem rgba(0, 0, 0, 0.22);
+  object-position: bottom right;
+  display: block;
 }
 
 .welcome__prompt {
@@ -238,7 +241,7 @@ video { display: block; }
   flex-direction: column;
   gap: 0.5em;
 }
-.receipt__logo { width: 4.6em; align-self: center; margin-bottom: 0.3em; }
+.receipt__logo { width: 7.5em; align-self: center; margin-bottom: 0.5em; }
 .receipt__title {
   margin: 0 0 0.5em;
   padding-bottom: 0.5em;
