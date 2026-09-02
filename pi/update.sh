@@ -11,7 +11,22 @@
 
 set -uo pipefail
 
-cd "$(dirname "$0")/.." || { echo "Cannot find the repo folder."; exit 1; }
+# This script updates the folder it lives in, which means `git reset --hard`
+# rewrites this very file while bash is still reading it. Bash reads scripts
+# lazily by byte offset, so a changed file mid-run makes it resume at the
+# wrong place. Run from a throwaway copy so the update cannot pull the file
+# out from under the running shell.
+if [ "${WTP_REEXEC:-}" != "1" ]; then
+  WTP_REPO="$(cd "$(dirname "$0")/.." && pwd)" || { echo "Cannot find the repo folder."; exit 1; }
+  COPY="$(mktemp "${TMPDIR:-/tmp}/wtp-update.XXXXXX")" || exit 1
+  cp "$0" "$COPY" || exit 1
+  WTP_REEXEC=1 WTP_REPO="$WTP_REPO" bash "$COPY" "$@"
+  code=$?
+  rm -f "$COPY"
+  exit $code
+fi
+
+cd "${WTP_REPO:?}" || { echo "Cannot find the repo folder."; exit 1; }
 CHECK_ONLY=false
 [ "${1:-}" = "--check" ] && CHECK_ONLY=true
 
