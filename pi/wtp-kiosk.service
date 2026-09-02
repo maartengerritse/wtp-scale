@@ -8,8 +8,8 @@ PartOf=graphical-session.target
 
 [Service]
 Type=simple
-WorkingDirectory=%h/wtp-scale
-ExecStart=/usr/bin/python3 %h/wtp-scale/pi/reader.py --port 8080
+WorkingDirectory=__REPO__
+ExecStart=/usr/bin/python3 __REPO__/pi/reader.py --port 8080
 Restart=always
 RestartSec=3
 

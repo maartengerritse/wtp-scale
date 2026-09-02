@@ -26,8 +26,10 @@ fi
 
 echo "==> Installing services"
 mkdir -p "$HOME/.config/systemd/user"
-sed "s#%h#$HOME#g" "$REPO/pi/wtp-kiosk.service"   > "$HOME/.config/systemd/user/wtp-kiosk.service"
-sed "s#%h#$HOME#g" "$REPO/pi/wtp-browser.service" > "$HOME/.config/systemd/user/wtp-browser.service"
+# Substitute the real clone location rather than assuming ~/wtp-scale, so the
+# services still work if the repo lives somewhere else.
+sed "s#__REPO__#$REPO#g" "$REPO/pi/wtp-kiosk.service"   > "$HOME/.config/systemd/user/wtp-kiosk.service"
+sed "s#__REPO__#$REPO#g" "$REPO/pi/wtp-browser.service" > "$HOME/.config/systemd/user/wtp-browser.service"
 chmod +x "$REPO/pi/kiosk.sh" "$REPO/pi/update.sh" "$REPO/pi/updater.py"
 
 systemctl --user daemon-reload

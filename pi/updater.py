@@ -23,7 +23,7 @@ from tkinter import scrolledtext
 REPO = Path(__file__).resolve().parent.parent
 
 BLUE = "#002e5a"
-ORANGE = "#e8710a"
+ORANGE = "#ff6b26"
 PAPER = "#f1f1f1"
 
 
@@ -130,13 +130,7 @@ class Updater(tk.Tk):
     # -------------------------------------------------------------- actions
 
     def check(self):
-        self.run(["bash", "-c",
-                  "git fetch --quiet origin && "
-                  "if [ \"$(git rev-parse HEAD)\" = \"$(git rev-parse '@{u}')\" ]; then "
-                  "echo 'You are up to date.'; else "
-                  "echo 'An update is available:'; echo; "
-                  "git --no-pager log --oneline HEAD..'@{u}'; echo; "
-                  "echo 'Press \"Update now\" to install it.'; fi"],
+        self.run(["bash", str(REPO / "pi" / "update.sh"), "--check"],
                  "Checking for updates")
 
     def update_now(self):

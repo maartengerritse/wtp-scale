@@ -9,7 +9,7 @@ PartOf=graphical-session.target
 [Service]
 Type=simple
 Environment=DISPLAY=:0
-ExecStart=%h/wtp-scale/pi/kiosk.sh
+ExecStart=__REPO__/pi/kiosk.sh
 Restart=always
 RestartSec=5
 
