@@ -76,12 +76,18 @@ fi
 # kiosk. --password-store=basic keeps it out of the keyring entirely; the
 # kiosk signs into nothing, so there are no secrets worth protecting.
 
-# A crash on the previous run otherwise triggers a "restore pages?" bubble
-# that sits on screen until someone dismisses it.
+# Start from a clean profile every time.
+#
+# Chromium saves its window geometry and restores it on the next launch, which
+# happens AFTER --start-fullscreen is applied. A profile written while the
+# window was wrong therefore shrinks every subsequent launch back to the wrong
+# size: the window opens full screen for a moment and then collapses. The
+# kiosk keeps no state worth preserving -- no logins, no history, and the page
+# is served from localhost -- so discarding the profile makes each start
+# deterministic and also clears any "restore pages?" bubble from a crash.
 PROFILE="${HOME}/.config/wtp-kiosk"
-mkdir -p "$PROFILE/Default"
-sed -i 's/"exit_type":"Crashed"/"exit_type":"Normal"/' \
-  "$PROFILE/Default/Preferences" 2>/dev/null || true
+rm -rf "$PROFILE"
+mkdir -p "$PROFILE"
 
 # --kiosk hides the browser chrome but does not size the window: Chromium's
 # Wayland backend leaves that entirely to the compositor and ignores
@@ -92,6 +98,8 @@ exec "$CHROME" \
   ${OZONE[@]+"${OZONE[@]}"} \
   --kiosk \
   --start-fullscreen \
+  --no-first-run \
+  --no-default-browser-check \
   --user-data-dir="$PROFILE" \
   --autoplay-policy=no-user-gesture-required \
   --password-store=basic \
