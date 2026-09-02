@@ -83,10 +83,15 @@ mkdir -p "$PROFILE/Default"
 sed -i 's/"exit_type":"Crashed"/"exit_type":"Normal"/' \
   "$PROFILE/Default/Preferences" 2>/dev/null || true
 
+# --kiosk hides the browser chrome but does not size the window: Chromium's
+# Wayland backend leaves that entirely to the compositor and ignores
+# --window-size. Under Wayfire that produced a 450x120 window in the corner.
+# --start-fullscreen is what actually claims the display.
 echo "kiosk: launching $CHROME at $URL"
 exec "$CHROME" \
   ${OZONE[@]+"${OZONE[@]}"} \
   --kiosk \
+  --start-fullscreen \
   --user-data-dir="$PROFILE" \
   --autoplay-policy=no-user-gesture-required \
   --password-store=basic \

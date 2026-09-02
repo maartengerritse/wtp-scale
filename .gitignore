@@ -31,3 +31,4 @@ env/
 # Logs / runtime output
 *.log
 nohup.out
+.wtp-version
