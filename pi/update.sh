@@ -83,7 +83,9 @@ python3 tools/validate.py || echo "  (see the warnings above)"
 
 step "Checking the videos..."
 if python3 tools/check-videos.py >/tmp/wtp-video-check 2>&1; then
-  tail -1 /tmp/wtp-video-check | sed 's/^/  /'
+  # Prints either the summary line or the "ffprobe not installed" note; the
+  # per-file "ok" lines are noise here.
+  grep -v '^ok ' /tmp/wtp-video-check | grep -v '^$' | sed 's/^/  /'
 else
   grep -E '^(FAIL|Some)' /tmp/wtp-video-check | sed 's/^/  /'
   echo "  Those clips will not play on this Pi."

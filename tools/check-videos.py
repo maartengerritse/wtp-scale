@@ -8,6 +8,7 @@ intro.mp4 and loading.mp4 were both 10-bit before the September 2026 rebuild.
 """
 
 import json
+import shutil
 import struct
 import subprocess
 import sys
@@ -44,6 +45,14 @@ def atom_order(path, limit=8):
 
 
 def main(argv):
+    # ffprobe lives on the authoring machine, not on the kiosk. Skipping is the
+    # right answer on a Pi: the videos were already gated before they were
+    # committed, and a missing tool is not a broken video.
+    if shutil.which("ffprobe") is None:
+        print("ffprobe not installed - skipping the video check.")
+        print("This is expected on the Raspberry Pi; videos are checked before they are committed.")
+        return 0
+
     directory = Path(argv[1] if len(argv) > 1 else "assets/video")
     files = sorted(directory.glob("*.mp4"))
     if not files:
