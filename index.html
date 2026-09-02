@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>What's the price? — Buynamics</title>
+    <link rel="stylesheet" href="assets/css/kiosk.css" />
+  </head>
+  <body>
+    <!-- ================= WELCOME ================= -->
+    <section class="view view--welcome is-active" id="view-welcome">
+      <img src="assets/img/logo-orange2.svg" alt="Buynamics" class="corner-logo" />
+
+      <div class="welcome">
+        <div class="welcome__text">
+          <h1>What's the price?</h1>
+          <h2>Try our price calculations</h2>
+        </div>
+
+        <div class="welcome__video">
+          <video id="welcome-video" muted loop playsinline preload="auto">
+            <source src="assets/video/intro.mp4" type="video/mp4" />
+          </video>
+        </div>
+
+        <div class="welcome__prompt">
+          <img src="assets/img/triple-chevron-down.svg" alt="" class="chevron" />
+          <img src="assets/img/scale.gif" alt="" class="scale-gif" />
+          <p>Place a product on the scale</p>
+          <img src="assets/img/single-chevron-down.svg" alt="" class="chevron" />
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= LOADING ================= -->
+    <section class="view view--loading" id="view-loading">
+      <img src="assets/img/logo-orange2.svg" alt="Buynamics" class="corner-logo" />
+
+      <div class="loading">
+        <ul class="loading__steps" id="loading-steps"><!-- built from products.json --></ul>
+        <div class="loading__video">
+          <video id="loading-video" muted loop playsinline preload="auto">
+            <source src="assets/video/loading.mp4" type="video/mp4" />
+          </video>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PRODUCT ================= -->
+    <section class="view view--product" id="view-product">
+      <img src="assets/img/logo-colour.svg" alt="Buynamics" class="corner-logo" />
+
+      <div class="product">
+        <!-- Left: the receipt -->
+        <aside class="receipt" id="receipt">
+          <img src="assets/img/logo-colour.svg" alt="" class="receipt__logo" />
+          <h2 class="receipt__title">Cost Breakdown</h2>
+
+          <h3 class="receipt__section">Cost Drivers</h3>
+          <h4 class="receipt__subsection">Direct Material Costs</h4>
+          <dl class="rows rows--materials" id="materials"></dl>
+          <dl class="rows rows--distribution" id="distribution"></dl>
+          <dl class="rows rows--totals" id="totals"></dl>
+        </aside>
+
+        <!-- Right: the product -->
+        <main class="detail">
+          <header class="detail__head">
+            <h1 id="product-name"></h1>
+            <div class="origin" id="origin" hidden>
+              <span class="origin__label">Origin:</span>
+              <span class="origin__value">
+                <img id="origin-flag" alt="" />
+                <span id="origin-country"></span>
+              </span>
+            </div>
+          </header>
+
+          <div class="specs" id="specs" hidden>
+            <div><span class="specs__label">Dimensions:</span> <span id="spec-dimensions"></span></div>
+            <div><span class="specs__label">Weight:</span> <span id="spec-weight"></span></div>
+            <div><span class="specs__label">EAN code:</span> <span id="spec-ean"></span></div>
+            <div><span class="specs__label">NAICS code:</span> <span id="spec-naics"></span></div>
+          </div>
+
+          <div class="detail__video">
+            <video id="product-video" muted loop playsinline preload="auto"></video>
+          </div>
+
+          <div class="impact" id="impact" hidden>
+            <div class="impact__head">
+              <strong>Coming soon</strong> <span>Impact metrics</span>
+            </div>
+            <div class="impact__row">
+              <span class="impact__label">Social:</span> <span id="impact-social"></span>
+              <span class="impact__label">Environmental:</span> <span id="impact-environmental"></span>
+              <span class="impact__label">Total:</span> <span id="impact-total"></span>
+              <span class="impact__label">CO₂-eq:</span> <span id="impact-co2"></span>
+            </div>
+          </div>
+        </main>
+      </div>
+
+      <footer class="footer" id="footer"></footer>
+    </section>
+
+    <!-- Shown only if products.json fails to load -->
+    <div class="fatal" id="fatal" hidden></div>
+
+    <script src="assets/js/kiosk.js"></script>
+  </body>
+</html>

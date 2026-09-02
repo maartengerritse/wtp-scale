@@ -1,0 +1,33 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Linux / Raspberry Pi
+*~
+.directory
+.fuse_hidden*
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Python (workingfile.py runs on the Pi)
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Logs / runtime output
+*.log
+nohup.out

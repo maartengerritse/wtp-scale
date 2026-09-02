@@ -1,0 +1,372 @@
+/* ==========================================================================
+   WTP Scale kiosk — September 2026
+   Hand-written, no framework. Everything here is local: the kiosk must run
+   with no network at all.
+
+   Sizing: the rig travels to conferences and gets whatever landscape screen
+   the venue provides. Type and spacing scale from viewport units via clamp(),
+   and every view keeps a safe margin so nothing lands under a bezel or off
+   the edge of an overscanning projector.
+   ========================================================================== */
+
+@font-face {
+  font-family: "Inter";
+  src: url("../fonts/Inter-VariableFont_opsz,wght.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("../fonts/Inter-Italic-VariableFont_opsz,wght.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: block;
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("../fonts/IBMPlexMono-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: block;
+}
+
+:root {
+  --blue: #002e5a;
+  --orange: #e8710a;
+  --neutral: #f1f1f1;
+  --white: #fff;
+  --ink: #111;
+  --ink-soft: #4a4a4a;
+  --line: #e0e0e0;
+
+  /* One knob drives the whole type scale, so an odd venue resolution
+     shrinks everything proportionally instead of clipping. */
+  --u: clamp(0.62rem, 0.83vw + 0.25rem, 1.05rem);
+  --safe-x: 4vw;
+  --safe-y: 4vh;
+  --radius: 0.6rem;
+
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: var(--blue);
+  color: var(--ink);
+  cursor: none;                 /* kiosk: never show a pointer */
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --------------------------------------------------------------- views -- */
+/* Three views live in the DOM at once; only one is visible. The page never
+   navigates, so there is no reload flash between tag scans. */
+
+.view {
+  position: fixed;
+  inset: 0;
+  display: none;
+  opacity: 0;
+  transition: opacity 260ms ease;
+}
+.view.is-active { display: block; opacity: 1; }
+.view.is-entering { opacity: 0; }
+
+.view--welcome,
+.view--loading { background: var(--blue); color: var(--white); }
+.view--product { background: var(--neutral); }
+
+.corner-logo {
+  position: absolute;
+  top: var(--safe-y);
+  left: var(--safe-x);
+  width: calc(var(--u) * 6);
+  height: auto;
+  z-index: 5;
+}
+
+video { display: block; }
+
+/* ------------------------------------------------------------- welcome -- */
+
+.welcome {
+  height: 100%;
+  padding: calc(var(--safe-y) * 1.6) var(--safe-x) var(--safe-y);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: calc(var(--u) * 1.2);
+  justify-items: center;
+  align-content: center;
+  text-align: center;
+}
+
+.welcome__text h1 {
+  margin: 0;
+  font-size: calc(var(--u) * 4.2);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--orange);
+}
+.welcome__text h2 {
+  margin: calc(var(--u) * 0.3) 0 0;
+  font-size: calc(var(--u) * 1.7);
+  font-weight: 400;
+  color: var(--white);
+}
+
+.welcome__video {
+  min-height: 0;                /* lets the video shrink inside the grid row */
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.welcome__video video {
+  max-height: 100%;
+  max-width: min(100%, 70vw);
+  height: auto;
+  width: auto;
+  object-fit: contain;
+  border-radius: var(--radius);
+}
+
+.welcome__prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--u) * 0.4);
+}
+.welcome__prompt p {
+  margin: 0;
+  font-size: calc(var(--u) * 1.5);
+  font-weight: 600;
+}
+.chevron { width: calc(var(--u) * 2.2); height: auto; }
+.scale-gif { width: calc(var(--u) * 7); height: auto; }
+
+/* ------------------------------------------------------------- loading -- */
+
+.loading {
+  height: 100%;
+  padding: calc(var(--safe-y) * 1.6) var(--safe-x) var(--safe-y);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: calc(var(--u) * 3);
+}
+
+.loading__steps { list-style: none; margin: 0; padding: 0; display: grid; gap: calc(var(--u) * 1.4); }
+.loading__steps li {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 1);
+  font-size: calc(var(--u) * 1.7);
+}
+
+/* Spinner until the step "completes", then a tick. */
+.step__icon {
+  flex: none;
+  width: calc(var(--u) * 2.1);
+  height: calc(var(--u) * 2.1);
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.25);
+  border-top-color: var(--orange);
+  animation: spin 900ms linear infinite;
+}
+.loading__steps li.is-done .step__icon {
+  animation: none;
+  border: none;
+  background: var(--orange);
+  -webkit-mask: url("../img/check.svg") center / 62% no-repeat;
+  mask: url("../img/check.svg") center / 62% no-repeat;
+}
+.loading__steps li.is-done { opacity: 0.85; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading__video { min-width: 0; display: flex; justify-content: center; }
+.loading__video video {
+  width: 100%;
+  max-height: 72vh;
+  object-fit: contain;
+  border-radius: var(--radius);
+}
+
+/* ------------------------------------------------------------- product -- */
+
+.product {
+  height: 100%;
+  padding: calc(var(--safe-y) * 1.5) var(--safe-x) calc(var(--safe-y) + var(--u) * 3.4);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: calc(var(--u) * 2.4);
+  align-items: stretch;      /* let the detail column fill the height */
+  max-width: 1900px;
+  margin: 0 auto;
+}
+
+/* --- receipt ------------------------------------------------------------ */
+
+.receipt {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  padding: 1.6em;
+  align-self: start;         /* card hugs its content, column still stretches */
+  max-height: 100%;
+  font-size: var(--u);       /* JS shrinks this to fit; see fitReceipt() */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+.receipt__logo { width: 5.5em; align-self: center; margin-bottom: 0.4em; }
+.receipt__title {
+  margin: 0 0 0.6em;
+  padding-bottom: 0.6em;
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+  font-size: 1.6em;
+  color: var(--orange);
+}
+.receipt__section { margin: 0; font-size: 1.35em; color: var(--orange); }
+.receipt__subsection { margin: 0.4em 0 0; font-size: 1.1em; color: var(--orange); font-weight: 500; }
+
+.rows { margin: 0; display: grid; gap: 0.18em; font-size: 1em; }
+.rows > div { display: flex; justify-content: space-between; gap: 1em; }
+.rows dt { color: var(--ink-soft); }
+.rows dd { margin: 0; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+.rows--materials { padding-left: 0.4em; }
+.rows--distribution { margin-top: 0.8em; }
+.rows--totals { margin-top: 0.6em; }
+
+.row--strong { font-weight: 700; }
+.row--strong dt { color: var(--ink); }
+.row--rule { border-top: 1px solid var(--line); padding-top: 0.35em; margin-top: 0.35em; }
+.row--grand { font-size: 1.5em; font-weight: 700; color: var(--orange); }
+.row--grand dt { color: var(--orange); }
+
+/* --- detail ------------------------------------------------------------- */
+
+.detail { min-width: 0; display: flex; flex-direction: column; gap: calc(var(--u) * 1.1); }
+
+.detail__head { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--u); }
+.detail__head h1 {
+  margin: 0;
+  font-size: calc(var(--u) * 2.6);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+.detail__head h1 span { color: var(--ink-soft); font-weight: 500; }
+
+.mono, .origin, .specs, .impact {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: calc(var(--u) * 0.92);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.origin {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: calc(var(--u) * 0.6) calc(var(--u) * 0.8);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  white-space: nowrap;
+}
+.origin__label { color: var(--ink-soft); }
+.origin__value { display: inline-flex; align-items: center; gap: calc(var(--u) * 0.4); color: var(--orange); }
+.origin__value img { height: calc(var(--u) * 0.9); width: auto; display: block; }
+
+.specs {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: calc(var(--u) * 0.8);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: calc(var(--u) * 0.4) calc(var(--u) * 2);
+}
+.specs__label { color: var(--ink-soft); }
+.specs span:not(.specs__label) { color: var(--orange); }
+.specs > div.is-empty { display: none; }
+.specs[hidden], .impact[hidden], .origin[hidden] { display: none; }
+
+.detail__video {
+  flex: 1 1 auto;
+  min-height: 0;
+  /* Matches the page so object-fit letterboxing is invisible; a white card
+     here left visible bars above and below clips that are not 16:9. */
+  background: var(--neutral);
+  border-radius: var(--radius);
+  overflow: hidden;
+  display: flex;
+}
+.detail__video video { width: 100%; height: 100%; object-fit: contain; }
+
+.impact {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: calc(var(--u) * 0.8);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+.impact__head { margin-bottom: calc(var(--u) * 0.5); color: var(--ink-soft); }
+.impact__head strong { color: var(--ink); }
+.impact__row { display: flex; flex-wrap: wrap; gap: calc(var(--u) * 0.3) calc(var(--u) * 0.9); }
+.impact__row span:not(.impact__label) { color: var(--orange); }
+.impact__label { color: var(--ink-soft); }
+
+/* -------------------------------------------------------------- footer -- */
+
+.footer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--orange);
+  color: var(--white);
+  text-align: center;
+  padding: calc(var(--u) * 0.7);
+  font-size: calc(var(--u) * 1.1);
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------------- fatal -- */
+
+.fatal {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  background: var(--blue);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10vh;
+  text-align: center;
+  font-size: calc(var(--u) * 1.4);
+  line-height: 1.6;
+}
+.fatal[hidden] { display: none; }
+
+/* ------------------------------------------------------- narrow screens -- */
+/* Venue screens are always landscape, but a short one (e.g. 1280x720)
+   needs the receipt to stay readable rather than overflow. */
+
+@media (max-height: 800px) {
+  :root { --safe-y: 3vh; }
+  .specs { gap: calc(var(--u) * 0.3) calc(var(--u) * 1.2); }
+}
+
+@media (max-aspect-ratio: 5/4) {
+  /* Unexpectedly squarish or portrait screen: stack instead of clipping. */
+  .product { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr; }
+  .loading { grid-template-columns: minmax(0, 1fr); }
+  .loading__video { display: none; }
+}

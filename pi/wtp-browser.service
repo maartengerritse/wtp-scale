@@ -1,0 +1,17 @@
+# Chromium in kiosk mode, pointed at the local service above.
+# Kept separate so the browser can be restarted without dropping the reader.
+[Unit]
+Description=WTP Scale kiosk browser
+After=wtp-kiosk.service graphical-session.target
+Requires=wtp-kiosk.service
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+Environment=DISPLAY=:0
+ExecStart=%h/wtp-scale/pi/kiosk.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=graphical-session.target
