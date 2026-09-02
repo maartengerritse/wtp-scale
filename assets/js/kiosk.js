@@ -61,9 +61,14 @@
     if (classes) wrap.className = classes;
     var dt = document.createElement("dt");
     dt.textContent = label;
+    // Dotted leader between label and figure, receipt style. A real element
+    // rather than a ::after so long material names wrap cleanly around it.
+    var leader = document.createElement("span");
+    leader.className = "leader";
     var dd = document.createElement("dd");
     dd.textContent = value;
     wrap.appendChild(dt);
+    wrap.appendChild(leader);
     wrap.appendChild(dd);
     return wrap;
   }

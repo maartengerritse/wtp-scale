@@ -58,7 +58,7 @@ html, body {
   height: 100%;
   width: 100%;
   overflow: hidden;
-  background: var(--blue);
+  background: var(--orange);
   color: var(--ink);
   cursor: none;                 /* kiosk: never show a pointer */
   -webkit-font-smoothing: antialiased;
@@ -78,8 +78,10 @@ html, body {
 .view.is-active { display: block; opacity: 1; }
 .view.is-entering { opacity: 0; }
 
+/* Welcome and loading lead with WTP orange; the product page stays neutral
+   so the cost breakdown reads as the payoff rather than more branding. */
 .view--welcome,
-.view--loading { background: var(--blue); color: var(--white); }
+.view--loading { background: var(--orange); color: var(--white); }
 .view--product { background: var(--neutral); }
 
 .corner-logo {
@@ -111,13 +113,14 @@ video { display: block; }
   font-size: calc(var(--u) * 4.2);
   font-weight: 800;
   letter-spacing: -0.02em;
-  color: var(--orange);
+  color: var(--white);
 }
 .welcome__text h2 {
   margin: calc(var(--u) * 0.3) 0 0;
   font-size: calc(var(--u) * 1.7);
   font-weight: 400;
   color: var(--white);
+  opacity: 0.92;
 }
 
 .welcome__video {
@@ -133,7 +136,9 @@ video { display: block; }
   height: auto;
   width: auto;
   object-fit: contain;
-  border-radius: var(--radius);
+  border-radius: 1.1rem;
+  box-shadow: 0 0 0 0.35rem rgba(255, 255, 255, 0.9),
+              0 1.2rem 2.5rem rgba(0, 0, 0, 0.22);
 }
 
 .welcome__prompt {
@@ -175,14 +180,14 @@ video { display: block; }
   width: calc(var(--u) * 2.1);
   height: calc(var(--u) * 2.1);
   border-radius: 50%;
-  border: 3px solid rgba(255, 255, 255, 0.25);
-  border-top-color: var(--orange);
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: var(--white);
   animation: spin 900ms linear infinite;
 }
 .loading__steps li.is-done .step__icon {
   animation: none;
   border: none;
-  background: var(--orange);
+  background: var(--white);
   -webkit-mask: url("../img/check.svg") center / 62% no-repeat;
   mask: url("../img/check.svg") center / 62% no-repeat;
 }
@@ -192,10 +197,17 @@ video { display: block; }
 
 .loading__video { min-width: 0; display: flex; justify-content: center; }
 .loading__video video {
-  width: 100%;
+  /* intro.mp4 and loading.mp4 carry a non-square pixel aspect ratio and
+     display portrait (9:16). Let the box hug the video instead of stretching
+     to the column, so the frame wraps the picture rather than empty space. */
+  width: auto;
+  height: auto;
+  max-width: 100%;
   max-height: 72vh;
   object-fit: contain;
-  border-radius: var(--radius);
+  border-radius: 1.1rem;
+  box-shadow: 0 0 0 0.35rem rgba(255, 255, 255, 0.9),
+              0 1.2rem 2.5rem rgba(0, 0, 0, 0.22);
 }
 
 /* ------------------------------------------------------------- product -- */
@@ -204,7 +216,7 @@ video { display: block; }
   height: 100%;
   padding: calc(var(--safe-y) * 1.5) var(--safe-x) calc(var(--safe-y) + var(--u) * 3.4);
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  grid-template-columns: clamp(16rem, 20vw, 22rem) minmax(0, 1fr);
   gap: calc(var(--u) * 2.4);
   align-items: stretch;      /* let the detail column fill the height */
   max-width: 1900px;
@@ -215,9 +227,9 @@ video { display: block; }
 
 .receipt {
   background: var(--white);
-  border-radius: var(--radius);
+  border-radius: 0.2em;      /* receipts do not have rounded corners */
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  padding: 1.6em;
+  padding: 1.5em 1.25em;
   align-self: start;         /* card hugs its content, column still stretches */
   max-height: 100%;
   font-size: var(--u);       /* JS shrinks this to fit; see fitReceipt() */
@@ -226,22 +238,54 @@ video { display: block; }
   flex-direction: column;
   gap: 0.5em;
 }
-.receipt__logo { width: 5.5em; align-self: center; margin-bottom: 0.4em; }
+.receipt__logo { width: 4.6em; align-self: center; margin-bottom: 0.3em; }
 .receipt__title {
-  margin: 0 0 0.6em;
-  padding-bottom: 0.6em;
-  border-bottom: 1px solid var(--line);
+  margin: 0 0 0.5em;
+  padding-bottom: 0.5em;
+  border-bottom: 1px dashed var(--line);
   text-align: center;
-  font-size: 1.6em;
+  font-size: 1.35em;
+  letter-spacing: 0.02em;
   color: var(--orange);
 }
-.receipt__section { margin: 0; font-size: 1.35em; color: var(--orange); }
-.receipt__subsection { margin: 0.4em 0 0; font-size: 1.1em; color: var(--orange); font-weight: 500; }
+.receipt__section {
+  margin: 0;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.95em;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--orange);
+}
+.receipt__subsection {
+  margin: 0.5em 0 0;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.82em;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  font-weight: 500;
+}
 
-.rows { margin: 0; display: grid; gap: 0.18em; font-size: 1em; }
-.rows > div { display: flex; justify-content: space-between; gap: 1em; }
-.rows dt { color: var(--ink-soft); }
-.rows dd { margin: 0; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.rows { margin: 0; display: grid; gap: 0.22em; font-size: 0.92em; }
+.rows > div { display: flex; align-items: flex-end; gap: 0.3em; }
+.rows dt { color: var(--ink-soft); flex: 0 1 auto; }
+
+/* The leader is its own element so a long material name can wrap without
+   the dots colliding with it. */
+.leader {
+  flex: 1 1 auto;
+  min-width: 1.2em;
+  border-bottom: 1px dotted #c9c9c9;
+  transform: translateY(-0.32em);
+}
+.rows dd {
+  margin: 0;
+  white-space: nowrap;
+  flex: none;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
 
 .rows--materials { padding-left: 0.4em; }
 .rows--distribution { margin-top: 0.8em; }
@@ -249,9 +293,13 @@ video { display: block; }
 
 .row--strong { font-weight: 700; }
 .row--strong dt { color: var(--ink); }
-.row--rule { border-top: 1px solid var(--line); padding-top: 0.35em; margin-top: 0.35em; }
-.row--grand { font-size: 1.5em; font-weight: 700; color: var(--orange); }
+.row--rule { border-top: 1px dashed var(--line); padding-top: 0.4em; margin-top: 0.4em; }
+.row--grand { font-size: 1.35em; font-weight: 700; color: var(--orange); }
 .row--grand dt { color: var(--orange); }
+.row--grand dd { color: var(--orange); }
+.row--grand .leader { border-bottom-color: transparent; }
+/* Strong rows carry their own weight; the dots would only add noise. */
+.row--strong .leader { border-bottom-style: none; }
 
 /* --- detail ------------------------------------------------------------- */
 
@@ -343,7 +391,7 @@ video { display: block; }
   position: fixed;
   inset: 0;
   z-index: 99;
-  background: var(--blue);
+  background: var(--blue);   /* deliberately not orange: an error should not look like the brand */
   color: var(--white);
   display: flex;
   align-items: center;
