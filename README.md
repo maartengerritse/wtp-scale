@@ -108,8 +108,12 @@ Double-click **WTP Scale** on the Pi desktop:
 |---|---|
 | Check for updates | Asks GitHub whether a newer version exists |
 | Update now | Downloads it, validates the data, restarts the kiosk |
+| Start kiosk | Brings the kiosk up |
+| Stop kiosk | Drops back to the desktop, to work on the Pi |
 | Restart kiosk | Restarts without downloading |
 | Show status | Whether the reader is running, and the data check |
+
+A line under the title shows whether the kiosk is currently running.
 
 Updates need the Pi online — do it at the hotel or office, not on the stand.
 

@@ -5,8 +5,13 @@ Double-click the icon on the desktop, press a button. Nothing else to know.
 
   Check for updates   ask GitHub whether a newer version exists
   Update now          download it, validate the data, restart the kiosk
+  Start kiosk         bring the kiosk up (e.g. after stopping it to work here)
+  Stop kiosk          drop back to the desktop
   Restart kiosk       restart without downloading anything
   Show status         is the reader running, which version is installed
+
+A line under the title shows whether the kiosk is currently running, so you
+can tell at a glance without reading the log.
 
 Deliberately Tkinter: it ships with Raspberry Pi OS (python3-tk), needs no
 network at launch and no extra packages.
@@ -43,24 +48,29 @@ class Updater(tk.Tk):
 
         tk.Label(self, text="WTP Scale", font=heading, bg=BLUE, fg=ORANGE).pack(pady=(18, 0))
         self.version = tk.Label(self, text="", font=label, bg=BLUE, fg="white")
-        self.version.pack(pady=(2, 12))
+        self.version.pack(pady=(2, 0))
+        self.state = tk.Label(self, text="", font=label, bg=BLUE, fg="white")
+        self.state.pack(pady=(0, 12))
 
-        bar = tk.Frame(self, bg=BLUE)
-        bar.pack(fill="x", padx=18)
         self.buttons = []
-        for text, handler in (
-            ("Check for updates", self.check),
-            ("Update now", self.update_now),
-            ("Restart kiosk", self.restart),
-            ("Show status", self.status),
+        # Updates on one row, kiosk control on the next: four buttons across a
+        # 720px window on a Pi screen would be too cramped to hit reliably.
+        for row_spec in (
+            (("Check for updates", self.check), ("Update now", self.update_now)),
+            (("Start kiosk", self.start), ("Stop kiosk", self.stop),
+             ("Restart kiosk", self.restart), ("Show status", self.status)),
         ):
-            b = tk.Button(bar, text=text, font=label, command=handler,
-                          bg=ORANGE if text == "Update now" else "white",
-                          fg="white" if text == "Update now" else BLUE,
-                          activebackground=ORANGE, relief="flat",
-                          padx=14, pady=10, cursor="hand2")
-            b.pack(side="left", expand=True, fill="x", padx=4)
-            self.buttons.append(b)
+            bar = tk.Frame(self, bg=BLUE)
+            bar.pack(fill="x", padx=18, pady=(0, 6))
+            for text, handler in row_spec:
+                primary = text in ("Update now", "Start kiosk")
+                b = tk.Button(bar, text=text, font=label, command=handler,
+                              bg=ORANGE if primary else "white",
+                              fg="white" if primary else BLUE,
+                              activebackground=ORANGE, relief="flat",
+                              padx=12, pady=10, cursor="hand2")
+                b.pack(side="left", expand=True, fill="x", padx=4)
+                self.buttons.append(b)
 
         self.log = scrolledtext.ScrolledText(
             self, font=("DejaVu Sans Mono", 10), bg=PAPER, fg="#111",
@@ -69,6 +79,7 @@ class Updater(tk.Tk):
         self.log.configure(state="disabled")
 
         self.show_version()
+        self.refresh_state()
         self.after(120, self.drain)
 
     # ---------------------------------------------------------------- utils
@@ -127,6 +138,28 @@ class Updater(tk.Tk):
             desc = "version unknown"
         self.version.configure(text=f"Installed: {desc}")
 
+    def refresh_state(self):
+        """Poll systemd so the header reflects reality, not the last button pressed."""
+        def active(unit):
+            try:
+                return subprocess.run(["systemctl", "--user", "is-active", unit],
+                                      capture_output=True, text=True).stdout.strip()
+            except Exception:                                # noqa: BLE001
+                return "unknown"
+
+        reader, browser = active("wtp-kiosk.service"), active("wtp-browser.service")
+        if reader == "active" and browser == "active":
+            text, colour = "Kiosk: running", "#8ef0a0"
+        elif reader == "active" or browser == "active":
+            text, colour = f"Kiosk: partly up (reader {reader}, screen {browser})", "#ffd28a"
+        elif "unknown" in (reader, browser):
+            text, colour = "Kiosk: state unavailable", "white"
+        else:
+            text, colour = "Kiosk: stopped", "#ffb0a0"
+
+        self.state.configure(text=text, fg=colour)
+        self.after(3000, self.refresh_state)
+
     # -------------------------------------------------------------- actions
 
     def check(self):
@@ -135,6 +168,16 @@ class Updater(tk.Tk):
 
     def update_now(self):
         self.run(["bash", str(REPO / "pi" / "update.sh")], "Updating")
+
+    def start(self):
+        self.run(["systemctl", "--user", "start",
+                  "wtp-kiosk.service", "wtp-browser.service"], "Starting the kiosk")
+
+    def stop(self):
+        # Browser first: stopping the reader out from under it would leave the
+        # page briefly showing a dead connection before the window closed.
+        self.run(["systemctl", "--user", "stop",
+                  "wtp-browser.service", "wtp-kiosk.service"], "Stopping the kiosk")
 
     def restart(self):
         self.run(["systemctl", "--user", "restart",
