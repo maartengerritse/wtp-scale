@@ -231,14 +231,14 @@ video { display: block; }
 .loading__video {
   position: absolute;
   right: 0;
-  bottom: -12vh;              /* waist-down mostly below the edge: see index.html */
+  bottom: 0;
   z-index: 2;
   pointer-events: none;
   display: flex;
   align-items: flex-end;
 }
 .loading__video video {
-  height: 100vh;
+  height: 78vh;               /* identical to the welcome presenter */
   width: auto;
   max-width: 46vw;
   object-fit: contain;
