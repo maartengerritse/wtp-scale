@@ -54,6 +54,16 @@ Optional blocks — **leave them out and they simply do not appear on screen**:
 }
 ```
 
+### Timing
+
+`config` at the top of `products.json`:
+
+| Key | Meaning |
+|---|---|
+| `loadingSeconds` | How long the "calculating" checklist runs before the product appears |
+| `returnDelaySeconds` | How long after the product is lifted before the welcome screen returns |
+| `wrapBeforeEndSeconds` | Restart looping clips this far before their end. The Pi's decoder stalls in the last ~3 s of a clip, so 3.5 skips frames nobody would see and avoids a visible freeze |
+
 `origin.code` picks the flag from `assets/img/flags/`. Only `cn`, `de` and `gb`
 exist so far; add a new SVG there for other countries.
 

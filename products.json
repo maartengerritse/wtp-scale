@@ -2,6 +2,7 @@
   "config": {
     "loadingSeconds": 10,
     "returnDelaySeconds": 1,
+    "wrapBeforeEndSeconds": 3.5,
     "footer": "Find your product's cost breakdown at www.buynamics.com"
   },
   "loadingSteps": [
