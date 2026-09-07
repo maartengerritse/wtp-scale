@@ -122,6 +122,7 @@ Double-click **WTP Scale** on the Pi desktop:
 | Stop kiosk | Drops back to the desktop, to work on the Pi |
 | Restart kiosk | Restarts without downloading |
 | Show status | Whether the reader is running, and the data check |
+| Log | Live feed of tag reads (`tag read -> product -> id`, or `tag not recognised -> ignored`), screen changes and reader health |
 
 A line under the title shows whether the kiosk is currently running.
 

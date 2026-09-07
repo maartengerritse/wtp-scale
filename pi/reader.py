@@ -211,13 +211,16 @@ def reader_loop(verbose=False):
                 STATE.saw(tag_id)
                 last_tag_time = now
                 if str(tag_id) != prev_tag:
-                    label = names.name(tag_id) or "UNKNOWN TAG (not in products.json)"
-                    print(f"[reader] tag {tag_id} -> {label}")
+                    name = names.name(tag_id)
+                    if name:
+                        print(f"[reader] tag read -> {name} -> {tag_id}")
+                    else:
+                        print(f"[reader] tag not recognised -> ignored -> {tag_id}")
                     prev_tag = str(tag_id)
                 elif verbose:
                     print(f"[reader] tag {tag_id} still present")
             elif prev_tag and now - last_tag_time > TAG_GRACE_SECONDS:
-                print(f"[reader] tag {prev_tag} removed")
+                print(f"[reader] tag removed -> {names.name(prev_tag) or prev_tag}")
                 prev_tag = None
 
             time.sleep(READ_INTERVAL)

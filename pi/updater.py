@@ -9,6 +9,8 @@ Double-click the icon on the desktop, press a button. Nothing else to know.
   Stop kiosk          drop back to the desktop
   Restart kiosk       restart without downloading anything
   Show status         is the reader running, which version is installed
+  Log                 live feed: every tag read, what it mapped to, screen
+                      changes and reader health, as they happen
 
 A line under the title shows whether the kiosk is currently running, so you
 can tell at a glance without reading the log.
@@ -42,6 +44,7 @@ class Updater(tk.Tk):
 
         self.output = queue.Queue()
         self.busy = False
+        self.log_proc = None          # journalctl -f while the Log view is open
 
         heading = tkfont.Font(family="DejaVu Sans", size=20, weight="bold")
         label = tkfont.Font(family="DejaVu Sans", size=11)
@@ -55,8 +58,10 @@ class Updater(tk.Tk):
         self.buttons = []
         # Updates on one row, kiosk control on the next: four buttons across a
         # 720px window on a Pi screen would be too cramped to hit reliably.
+        self.by_text = {}
         for row_spec in (
-            (("Check for updates", self.check), ("Update now", self.update_now)),
+            (("Check for updates", self.check), ("Update now", self.update_now),
+             ("Log", self.toggle_log)),
             (("Start kiosk", self.start), ("Stop kiosk", self.stop),
              ("Restart kiosk", self.restart), ("Show status", self.status)),
         ):
@@ -71,6 +76,7 @@ class Updater(tk.Tk):
                               padx=12, pady=10, cursor="hand2")
                 b.pack(side="left", expand=True, fill="x", padx=4)
                 self.buttons.append(b)
+                self.by_text[text] = b
 
         self.log = scrolledtext.ScrolledText(
             self, font=("DejaVu Sans Mono", 10), bg=PAPER, fg="#111",
@@ -104,6 +110,7 @@ class Updater(tk.Tk):
         """Run a command on a worker thread, streaming output into the log."""
         if self.busy:
             return
+        self.stop_log()
         self.set_busy(True)
         self.log.configure(state="normal")
         self.log.delete("1.0", "end")
@@ -159,6 +166,62 @@ class Updater(tk.Tk):
 
         self.state.configure(text=text, fg=colour)
         self.after(3000, self.refresh_state)
+
+    # ------------------------------------------------------------ live log
+
+    LOG_KEEP = ("[reader]", "[page] view", "[page] tag", "[page] unknown-tag",
+                "[page] video-reload", "[kiosk]")
+
+    @staticmethod
+    def tidy(line):
+        """'Sep 07 11:05:18 raspberrypi python3[13000]: [reader] tag read -> X'
+        becomes '11:05:18  tag read -> X'. The journal prefix is noise here."""
+        head, sep, msg = line.partition("]: ")
+        if not sep:
+            return line
+        stamp = head.split()[2] if len(head.split()) > 2 else ""
+        msg = msg.replace("[reader] ", "").replace("[page] ", "screen: ").replace("[kiosk] ", "")
+        return f"{stamp}  {msg}"
+
+    def toggle_log(self):
+        if self.log_proc:
+            self.stop_log()
+            return
+        if self.busy:
+            return
+        self.log.configure(state="normal")
+        self.log.delete("1.0", "end")
+        self.log.configure(state="disabled")
+        self.output.put("Live log -- tag reads, screen changes, reader health\n"
+                        "----------------------------------------------------\n")
+        try:
+            self.log_proc = subprocess.Popen(
+                ["journalctl", "--user", "-u", "wtp-kiosk.service", "-f", "-n", "40",
+                 "--no-pager", "-o", "short"],
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
+        except FileNotFoundError as exc:
+            self.output.put(f"Could not start the log: {exc}\n")
+            self.log_proc = None
+            return
+        self.by_text["Log"].configure(text="Stop log", bg=ORANGE, fg="white")
+
+        def pump(proc):
+            for line in proc.stdout:
+                if any(k in line for k in self.LOG_KEEP):
+                    self.output.put(self.tidy(line.rstrip()) + "\n")
+            if self.log_proc is proc:
+                self.after(0, self.stop_log)
+
+        threading.Thread(target=pump, args=(self.log_proc,), daemon=True).start()
+
+    def stop_log(self):
+        proc, self.log_proc = self.log_proc, None
+        if proc:
+            try:
+                proc.terminate()
+            except OSError:
+                pass
+            self.by_text["Log"].configure(text="Log", bg="white", fg=BLUE)
 
     # -------------------------------------------------------------- actions
 
