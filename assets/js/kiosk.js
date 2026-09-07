@@ -193,12 +193,14 @@
 
       var t = v.currentTime;
 
-      // A clip that is still buffering has not stalled: readyState stays below
-      // HAVE_FUTURE_DATA and the playhead legitimately sits at 0. Counting that
-      // as a stall made this reload the element every second, so a large clip
-      // never finished loading at all -- which is exactly what happened when
-      // the product videos grew from ~2 MB to ~9 MB.
-      if (v.readyState < 3) {
+      // Two different states both report readyState 2: a clip still opening,
+      // and a clip starved at its end (the Pi's decoder gives up a few frames
+      // short and never fires `ended`). Guarding on readyState alone therefore
+      // either reloads a loading clip to death or leaves a finished one frozen
+      // -- both of which happened. Duration tells them apart: until metadata
+      // arrives there is nothing to judge, and once it has, a motionless
+      // playhead is a real stall.
+      if (!(v.duration > 0)) {
         if (!watch.loadingSince[id]) watch.loadingSince[id] = now;
         var loadingMs = now - watch.loadingSince[id];
         var retriedRecently = watch.restartedAt[id] && now - watch.restartedAt[id] < 15000;
@@ -229,7 +231,10 @@
 
       if ((nearEnd || stuckMs > 1000) && !recently) {
         var reason = nearEnd ? "near-end" : "stalled";
-        var escalate = reason === "stalled" && watch.restartedAt[id] && now - watch.restartedAt[id] < 8000;
+        // Never reload something that is merely short of data; that aborts
+        // the fetch it is waiting on.
+        var escalate = reason === "stalled" && v.readyState >= 3 &&
+                       watch.restartedAt[id] && now - watch.restartedAt[id] < 8000;
         report(escalate ? "video-reload" : "video-restart",
                { id: id, t: +t.toFixed(2), duration: +(v.duration || 0).toFixed(2), reason: reason });
         if (escalate) {

@@ -116,6 +116,15 @@ mkdir -p "$PROFILE"
 #
 # The DevTools port is bound to 127.0.0.1 only; pi/inspect.py uses it to ask
 # the live page about its video state, which is how the loop stall was found.
+#
+# Video decoding is pinned to software. The Pi has a single hardware H.264
+# session, so with several clips in the page one gets the hardware decoder and
+# the rest fall back -- and the two paths convert colour differently. The
+# keyed presenter clips have the brand orange baked into their pixels, so that
+# difference showed up as the video sitting in a visibly wrong orange
+# rectangle, and which clip was affected changed from boot to boot. One decode
+# path means one colour. Only one clip is ever visible at a time, so the CPU
+# cost is a single 1080p stream.
 echo "kiosk: launching $CHROME at $URL"
 exec "$CHROME" \
   ${OZONE[@]+"${OZONE[@]}"} \
@@ -126,6 +135,7 @@ exec "$CHROME" \
   --no-default-browser-check \
   --user-data-dir="$PROFILE" \
   --autoplay-policy=no-user-gesture-required \
+  --disable-accelerated-video-decode \
   --password-store=basic \
   --use-mock-keychain \
   --noerrdialogs \
