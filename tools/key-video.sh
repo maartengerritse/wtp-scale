@@ -54,12 +54,13 @@ echo "backdrop chroma Cb=${UB} Cr=${VB}; matte R=${R} M=${M}"
 
 MATTE="if(lt(sqrt(pow(cb(X,Y)-${UB},2)+pow(cr(X,Y)-${VB},2)),${R})*gt(sqrt(pow(cb(X,Y)-128,2)+pow(cr(X,Y)-128,2)),${M}),0,255)"
 
-# Chroma is encoded with the BT.601 matrix on purpose. Chromium's video path
-# on the Raspberry Pi applies BT.601 when converting to RGB regardless of how
-# the stream is tagged: a BT.709 encode of #FF6B26 painted as #EE5D28 on the
-# kiosk screen, while the 601 encode paints #FF6A27 -- one unit off. Measured
-# by screenshotting the Pi and sampling pixels; ffmpeg decodes every variant
-# correctly and cannot show the difference.
+# Chroma is encoded with the BT.601 matrix. The kiosk uses the Pi's hardware
+# H.264 decoder (a Pi 4 cannot software-decode 1080-class video smoothly), and
+# that path converts with BT.601 whatever the stream is tagged: measured on
+# the device, a 601 clip paints #FF6A27 against a #FF6B26 page while a 709 one
+# paints #EE5D28. Software decode is exactly the opposite, which is why these
+# clips must not be allowed to fall back to it -- see the lazy source handling
+# in assets/js/kiosk.js.
 ffmpeg -nostdin -v error -y -i "$IN" \
   -f lavfi -i "color=c=${BRAND}:s=${W}x${H}" \
   -filter_complex \
@@ -68,7 +69,7 @@ ffmpeg -nostdin -v error -y -i "$IN" \
      [src]format=rgba[rgb];\
      [rgb][mask]alphamerge,despill=type=blue:mix=0.5:expand=0[fg];\
      [1:v]format=rgba[bg];\
-     [bg][fg]overlay=shortest=1,\
+     [bg][fg]overlay=shortest=1,scale=-2:min(ih\\,1080),\
      scale=out_color_matrix=bt601:out_range=tv,format=yuv420p,setsar=${SAR}" \
   -c:v libx264 -profile:v high -pix_fmt yuv420p -level 4.0 \
   -colorspace bt470bg -color_range tv \

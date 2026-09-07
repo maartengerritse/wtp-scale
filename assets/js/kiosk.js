@@ -166,6 +166,28 @@
      not take escalates to a full reload of the element. */
   var watch = { lastT: {}, stuckSince: {}, restartedAt: {}, loadingSince: {} };
 
+  /* Only the visible clip keeps a source.
+
+     The Pi 4 has a limited number of hardware H.264 decoder slots. With all
+     three video elements holding a source, one lost the race and fell back to
+     software -- and the two paths convert colour differently, so the keyed
+     presenter appeared in a visibly wrong orange rectangle, on whichever clip
+     happened to lose. Dropping the source from the off-screen views keeps one
+     decode in flight, so every clip gets the hardware path and one colour. */
+  function attachSource(v) {
+    var want = v.getAttribute("data-src");
+    if (!want || v.getAttribute("src") === want) return;
+    v.setAttribute("src", want);
+    v.load();
+  }
+
+  function detachSource(v) {
+    if (!v.getAttribute("src")) return;
+    if (!v.getAttribute("data-src")) v.setAttribute("data-src", v.getAttribute("src"));
+    v.removeAttribute("src");
+    v.load();                       // releases the decoder
+  }
+
   function activeVideo() {
     if (view === "welcome") return el.welcomeVideo;
     if (view === "loading") return el.loadingVideo;
@@ -340,14 +362,14 @@
     }
     el.impact.hidden = !hasImpact;
 
-    // Swap src rather than keeping one <video> per product: the Pi should
-    // only ever decode one product clip at a time.
-    var src = "assets/video/" + p.video;
-    if (el.productVideo.getAttribute("src") !== src) {
-      el.productVideo.setAttribute("src", src);
-      el.productVideo.load();
+    // One <video> reused for every product; the source is attached only while
+    // the product view is on screen.
+    var src = p.video ? "assets/video/" + p.video : "";
+    el.productVideo.setAttribute("data-src", src);
+    if (view === "product" && src) {
+      attachSource(el.productVideo);
+      play(el.productVideo);
     }
-    play(el.productVideo);
   }
 
   /* -------------------------------------------------------------- views -- */
@@ -360,9 +382,12 @@
     view = next;
     report("view", { view: next, product: currentProduct ? currentProduct.id : null });
 
-    if (next === "welcome") play(el.welcomeVideo);
-    if (next === "loading") play(el.loadingVideo);
-    if (next === "product") play(el.productVideo);
+    var wanted = activeVideo();
+    [el.welcomeVideo, el.loadingVideo, el.productVideo].forEach(function (v) {
+      if (v !== wanted) detachSource(v);
+    });
+    attachSource(wanted);
+    play(wanted);
   }
 
   function clearLoadingTimers() {

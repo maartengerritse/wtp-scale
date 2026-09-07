@@ -26,11 +26,12 @@
       </div>
 
       <div class="welcome__video">
-        <video id="welcome-video" muted loop playsinline preload="auto">
-          <!-- intro-keyed.mp4: same clip with the blue studio background replaced by
-               the brand orange (tools/key-video.sh). intro.mp4 is the original. -->
-          <source src="assets/video/intro-keyed.mp4" type="video/mp4" />
-        </video>
+        <!-- The source is attached by kiosk.js only while this view is on
+             screen; see the lazy handling there. intro-keyed.mp4 is the clip
+             with the blue studio background replaced by the brand orange
+             (tools/key-video.sh); intro.mp4 is the untouched original. -->
+        <video id="welcome-video" data-src="assets/video/intro-keyed.mp4"
+               muted loop playsinline preload="auto"></video>
       </div>
     </section>
 
@@ -45,9 +46,8 @@
       <!-- Same treatment as the welcome presenter: keyed onto the orange and
            anchored to the corner, same size and position. -->
       <div class="loading__video">
-        <video id="loading-video" muted loop playsinline preload="auto">
-          <source src="assets/video/loading-keyed.mp4" type="video/mp4" />
-        </video>
+        <video id="loading-video" data-src="assets/video/loading-keyed.mp4"
+               muted loop playsinline preload="auto"></video>
       </div>
     </section>
 
