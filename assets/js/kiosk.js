@@ -164,7 +164,7 @@
      playhead: if the visible clip is meant to be playing and has not moved,
      or is inside its last moments, wrap it ourselves. A restart that does
      not take escalates to a full reload of the element. */
-  var watch = { lastT: {}, stuckSince: {}, restartedAt: {} };
+  var watch = { lastT: {}, stuckSince: {}, restartedAt: {}, loadingSince: {} };
 
   function activeVideo() {
     if (view === "welcome") return el.welcomeVideo;
@@ -185,12 +185,37 @@
       var id = v.id;
       if (v !== active || !v.currentSrc) {
         watch.stuckSince[id] = 0;
+        watch.loadingSince[id] = 0;
         delete watch.lastT[id];
         return;
       }
       if (v.paused) play(v);
 
       var t = v.currentTime;
+
+      // A clip that is still buffering has not stalled: readyState stays below
+      // HAVE_FUTURE_DATA and the playhead legitimately sits at 0. Counting that
+      // as a stall made this reload the element every second, so a large clip
+      // never finished loading at all -- which is exactly what happened when
+      // the product videos grew from ~2 MB to ~9 MB.
+      if (v.readyState < 3) {
+        if (!watch.loadingSince[id]) watch.loadingSince[id] = now;
+        var loadingMs = now - watch.loadingSince[id];
+        var retriedRecently = watch.restartedAt[id] && now - watch.restartedAt[id] < 15000;
+        // Genuinely never arriving is still worth one retry, but slowly.
+        if (loadingMs > 15000 && !retriedRecently) {
+          report("video-reload", { id: id, reason: "never-loaded",
+                                   readyState: v.readyState,
+                                   error: v.error ? v.error.code : null });
+          v.load();
+          play(v);
+          watch.restartedAt[id] = now;
+        }
+        watch.lastT[id] = t;
+        return;
+      }
+      watch.loadingSince[id] = 0;
+
       var wrapBefore = v === el.welcomeVideo ? welcomeWrap : 0.25;
       var nearEnd = v.duration > 0 && t > v.duration - wrapBefore;
       var frozen = watch.lastT[id] !== undefined && Math.abs(t - watch.lastT[id]) < 0.001 && !v.paused;

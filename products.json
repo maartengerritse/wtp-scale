@@ -2,7 +2,7 @@
   "config": {
     "currency": "EUR",
     "usdPerEur": 1.17,
-    "loadingSeconds": 10,
+    "loadingSeconds": 6,
     "returnDelaySeconds": 1,
     "wrapBeforeEndSeconds": 3.5,
     "footer": "Find your product's cost breakdown at www.buynamics.com"
