@@ -7,9 +7,8 @@ Description=WTP Scale kiosk browser
 # A missing execute bit on kiosk.sh once looped this 1000+ times unnoticed.
 StartLimitIntervalSec=120
 StartLimitBurst=5
-After=wtp-kiosk.service graphical-session.target
+After=wtp-kiosk.service
 Requires=wtp-kiosk.service
-PartOf=graphical-session.target
 
 [Service]
 Type=simple
@@ -20,4 +19,7 @@ Restart=always
 RestartSec=5
 
 [Install]
-WantedBy=graphical-session.target
+# default.target, not graphical-session.target: Wayfire on Pi OS never
+# activates the latter in the user instance, so nothing wanted by it ever
+# starts at boot. kiosk.sh waits for the display itself.
+WantedBy=default.target

@@ -23,6 +23,14 @@ URL="http://127.0.0.1:${PORT}/"
 RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
 export XDG_RUNTIME_DIR="$RUNTIME_DIR"
 
+# At boot this service starts with the user session, typically before Wayfire
+# has brought up XWayland. Wait for a display socket rather than fail and
+# burn through the restart limit while the desktop is still loading.
+for _ in $(seq 1 90); do
+  ls /tmp/.X11-unix/X* "$RUNTIME_DIR"/wayland-* >/dev/null 2>&1 && break
+  sleep 1
+done
+
 if [ "${WTP_USE_WAYLAND:-0}" = "1" ] && [ -n "${WAYLAND_DISPLAY:-}" ]; then
   SESSION=wayland
   OZONE=(--ozone-platform=wayland)

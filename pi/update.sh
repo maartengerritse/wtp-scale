@@ -55,6 +55,28 @@ post_update() {
     echo "  Those clips will not play on this Pi."
   fi
 
+  # Service definitions live in the repo but run from ~/.config/systemd/user,
+  # so a change to them would otherwise never reach the device through this
+  # button. Reinstall when they differ; `reenable` moves the wants-symlink if
+  # WantedBy changed.
+  step "Checking the service definitions..."
+  local unit_dir="$HOME/.config/systemd/user" changed=false
+  mkdir -p "$unit_dir"
+  for unit in wtp-kiosk.service wtp-browser.service; do
+    sed "s#__REPO__#$PWD#g" "pi/$unit" > "/tmp/$unit.new"
+    if ! cmp -s "/tmp/$unit.new" "$unit_dir/$unit"; then
+      cp "/tmp/$unit.new" "$unit_dir/$unit" && changed=true
+    fi
+    rm -f "/tmp/$unit.new"
+  done
+  if $changed; then
+    systemctl --user daemon-reload
+    systemctl --user reenable wtp-kiosk.service wtp-browser.service 2>/dev/null
+    echo "  Updated and re-enabled."
+  else
+    echo "  Unchanged."
+  fi
+
   step "Restarting the kiosk..."
   systemctl --user reset-failed wtp-kiosk.service wtp-browser.service 2>/dev/null
   if systemctl --user restart wtp-kiosk.service wtp-browser.service 2>/tmp/wtp-restart-error; then
