@@ -113,11 +113,15 @@ mkdir -p "$PROFILE"
 # Wayland backend leaves that entirely to the compositor and ignores
 # --window-size. Under Wayfire that produced a 450x120 window in the corner.
 # --start-fullscreen is what actually claims the display.
+#
+# The DevTools port is bound to 127.0.0.1 only; pi/inspect.py uses it to ask
+# the live page about its video state, which is how the loop stall was found.
 echo "kiosk: launching $CHROME at $URL"
 exec "$CHROME" \
   ${OZONE[@]+"${OZONE[@]}"} \
   --kiosk \
   --start-fullscreen \
+  --remote-debugging-port=9222 \
   --no-first-run \
   --no-default-browser-check \
   --user-data-dir="$PROFILE" \

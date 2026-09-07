@@ -128,8 +128,14 @@ The MFRC522 reader connects over SPI:
 | MOSI | 19 |
 | MISO | 21 |
 | GND | 6 |
-| RST | 22 |
+| RST | 22 (auto-detected, see below) |
 | 3.3V | 1 |
+
+With RST on the wrong pin the chip is held in reset and reads as dead, so the
+service probes pins 22, 16, 15, 18, 13 and 11 at startup and logs which one
+answered (`journalctl --user -u wtp-kiosk`). Set `WTP_RST_PIN` to force one.
+While the reader is not answering, the welcome screen shows a small
+"RFID reader not detected" note in the corner.
 
 ---
 
@@ -169,6 +175,12 @@ placing a product on the scale, **Escape** to lift it.
 | `python3 tools/validate.py` | Duplicate tags, missing videos, untagged products |
 | `python3 tools/check-videos.py` | Every video is Pi-decodable |
 | `tools/encode-videos.sh` | Convert new footage to the Pi-safe format |
+| `tools/key-video.sh` | Replace a clip's blue studio background with the brand orange |
+| `tools/add-product.py` | Add a product by answering questions |
+| `pi/inspect.py` | Ask the live kiosk page about its videos and current view |
+| `pi/debug.sh` | Collect everything needed to diagnose a problem on the Pi |
+
+Tag reads and screen changes are logged together: `journalctl --user -u wtp-kiosk -f`
 
 ---
 

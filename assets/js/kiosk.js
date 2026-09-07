@@ -46,6 +46,7 @@
     specs: document.getElementById("specs"),
     impact: document.getElementById("impact"),
     footer: document.getElementById("footer"),
+    readerWarn: document.getElementById("reader-warning"),
     fatal: document.getElementById("fatal")
   };
 
@@ -88,6 +89,80 @@
     if (!video) return;
     var attempt = video.play();
     if (attempt && typeof attempt.catch === "function") attempt.catch(function () {});
+  }
+
+  /* Tell the reader service what the page is doing. It prints these to the
+     journal, so `journalctl --user -u wtp-kiosk -f` shows tag reads and view
+     changes side by side. Fire-and-forget; in dev mode there is no server. */
+  function report(event, extra) {
+    try {
+      fetch("/log", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ event: event, data: extra || {} })
+      }).catch(function () {});
+    } catch (e) { /* ignore */ }
+  }
+
+  /* Video watchdog.
+
+     On the Pi the hardware decoder starves a few seconds before the end of a
+     clip: measured on intro.mp4, currentTime froze at 74.9s of 78.0s with
+     paused=false, ended=false, readyState=2. `ended` never fires, so neither
+     the loop attribute nor an ended handler can restart it. So watch the
+     playhead: if the visible clip is meant to be playing and has not moved,
+     or is inside its last moments, wrap it ourselves. A restart that does
+     not take escalates to a full reload of the element. */
+  var watch = { lastT: {}, stuckSince: {}, restartedAt: {} };
+
+  function activeVideo() {
+    if (view === "welcome") return el.welcomeVideo;
+    if (view === "loading") return el.loadingVideo;
+    return el.productVideo;
+  }
+
+  function watchVideos() {
+    var active = activeVideo();
+    var now = Date.now();
+    var cfg = (data && data.config) || {};
+    var wrapBefore = typeof cfg.wrapBeforeEndSeconds === "number" ? cfg.wrapBeforeEndSeconds : 0.5;
+
+    [el.welcomeVideo, el.loadingVideo, el.productVideo].forEach(function (v) {
+      var id = v.id;
+      if (v !== active || !v.currentSrc) {
+        watch.stuckSince[id] = 0;
+        delete watch.lastT[id];
+        return;
+      }
+      if (v.paused) play(v);
+
+      var t = v.currentTime;
+      var nearEnd = v.duration > 0 && t > v.duration - wrapBefore;
+      var frozen = watch.lastT[id] !== undefined && Math.abs(t - watch.lastT[id]) < 0.001 && !v.paused;
+      if (frozen) {
+        if (!watch.stuckSince[id]) watch.stuckSince[id] = now;
+      } else {
+        watch.stuckSince[id] = 0;
+      }
+      var stuckMs = watch.stuckSince[id] ? now - watch.stuckSince[id] : 0;
+      var recently = watch.restartedAt[id] && now - watch.restartedAt[id] < 2000;
+
+      if ((nearEnd || stuckMs > 1000) && !recently) {
+        var reason = nearEnd ? "near-end" : "stalled";
+        var escalate = reason === "stalled" && watch.restartedAt[id] && now - watch.restartedAt[id] < 8000;
+        report(escalate ? "video-reload" : "video-restart",
+               { id: id, t: +t.toFixed(2), duration: +(v.duration || 0).toFixed(2), reason: reason });
+        if (escalate) {
+          v.load();
+        } else {
+          v.currentTime = 0;
+        }
+        play(v);
+        watch.restartedAt[id] = now;
+        watch.stuckSince[id] = 0;
+      }
+      watch.lastT[id] = v.currentTime;
+    });
   }
 
   /* ------------------------------------------------------------- render -- */
@@ -196,6 +271,7 @@
       el.views[key].classList.toggle("is-active", key === next);
     });
     view = next;
+    report("view", { view: next, product: currentProduct ? currentProduct.id : null });
 
     if (next === "welcome") play(el.welcomeVideo);
     if (next === "loading") play(el.loadingVideo);
@@ -246,8 +322,12 @@
       if (clearTimer) { clearTimeout(clearTimer); clearTimer = null; }
 
       var product = byTag[String(tagId)];
-      if (!product) return;                       // unknown tag: ignore, stay put
+      if (!product) {                             // unknown tag: ignore, stay put
+        if (tagId !== lastSeenTag) report("unknown-tag", { tag: String(tagId) });
+        return;
+      }
       if (currentProduct && currentProduct.id === product.id) return;
+      report("tag", { tag: String(tagId), product: product.id });
       startLoading(product);
       return;
     }
@@ -271,10 +351,14 @@
       .then(function (r) { return r.json(); })
       .then(function (s) {
         var tag = s && s.tag ? String(s.tag) : null;
-        if (tag !== lastSeenTag) {
-          lastSeenTag = tag;
-        }
+        // Discreet on-screen warning when the reader hardware is not answering,
+        // so a loose cable is obvious at the stand instead of looking like
+        // "tags just don't work today".
+        var missing = s && s.reader === "missing";
+        el.readerWarn.hidden = !missing;
+        if (missing) el.readerWarn.textContent = "RFID reader not detected" + (s.readerInfo ? " \u2013 " + s.readerInfo : "");
         onTag(tag);
+        lastSeenTag = tag;
       })
       .catch(function () { /* reader service not up yet; keep polling */ })
       .then(function () { setTimeout(poll, POLL_MS); });
@@ -355,6 +439,8 @@
 
       show("welcome");
       play(el.welcomeVideo);
+
+      setInterval(watchVideos, 500);
 
       window.addEventListener("resize", function () {
         if (view === "product") fitReceipt();

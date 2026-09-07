@@ -388,6 +388,24 @@ video { display: block; }
   font-weight: 600;
 }
 
+/* ------------------------------------------------------ reader warning -- */
+
+.reader-warning {
+  position: fixed;
+  left: var(--safe-x);
+  bottom: var(--safe-y);
+  z-index: 50;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: calc(var(--u) * 0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--white);
+  background: rgba(0, 0, 0, 0.4);
+  padding: 0.5em 0.85em;
+  border-radius: 0.4em;
+}
+.reader-warning[hidden] { display: none; }
+
 /* --------------------------------------------------------------- fatal -- */
 
 .fatal {

@@ -62,6 +62,9 @@ echo "=== session ==="
 echo "type=${XDG_SESSION_TYPE:-unset} display=${DISPLAY:-unset} wayland=${WAYLAND_DISPLAY:-unset}"
 
 echo
+echo "=== reader + page state ==="
+curl -s --max-time 5 http://127.0.0.1:8080/state 2>/dev/null || echo "  (service not answering)"; echo
+echo
 echo "=== is the page served? ==="
 curl -sf -o /dev/null -w "  localhost:8080/state -> HTTP %{http_code}\n" --max-time 5 \
   http://127.0.0.1:8080/state || echo "  no answer"

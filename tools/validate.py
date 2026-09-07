@@ -68,7 +68,7 @@ def main():
             errors.append(f"duplicate product id '{pid}': {', '.join(owners)}")
 
     on_disk = {f.name for f in VIDEO_DIR.glob("*.mp4")}
-    for orphan in sorted(on_disk - used_videos - {"intro.mp4", "loading.mp4"}):
+    for orphan in sorted(on_disk - used_videos - {"intro.mp4", "intro-keyed.mp4", "loading.mp4"}):
         warnings.append(f"{orphan} is on disk but no product references it")
 
     shared = [v for v in used_videos if sum(1 for p in products if p.get("video") == v) > 1]
