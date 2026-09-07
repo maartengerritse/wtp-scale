@@ -125,7 +125,10 @@
     var active = activeVideo();
     var now = Date.now();
     var cfg = (data && data.config) || {};
-    var wrapBefore = typeof cfg.wrapBeforeEndSeconds === "number" ? cfg.wrapBeforeEndSeconds : 0.5;
+    // The early wrap exists for the 78s welcome clip, whose last ~3s the Pi
+    // cannot decode. Applied to a 13s loading clip it would cut a quarter of
+    // it; the shorter clips only need the stall detector as a safety net.
+    var welcomeWrap = typeof cfg.wrapBeforeEndSeconds === "number" ? cfg.wrapBeforeEndSeconds : 0.5;
 
     [el.welcomeVideo, el.loadingVideo, el.productVideo].forEach(function (v) {
       var id = v.id;
@@ -137,6 +140,7 @@
       if (v.paused) play(v);
 
       var t = v.currentTime;
+      var wrapBefore = v === el.welcomeVideo ? welcomeWrap : 0.25;
       var nearEnd = v.duration > 0 && t > v.duration - wrapBefore;
       var frozen = watch.lastT[id] !== undefined && Math.abs(t - watch.lastT[id]) < 0.001 && !v.paused;
       if (frozen) {
