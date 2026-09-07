@@ -383,7 +383,11 @@ video { display: block; }
 .specs[hidden], .impact[hidden], .origin[hidden] { display: none; }
 
 .detail__video {
-  flex: 1 1 auto;
+  /* basis 0, not auto: with auto the box starts from the video's own height
+     and the impact strip below it was pushed under the footer once the clip
+     had loaded. Zero basis makes the video take only the space left over
+     after the heading, specs and impact strip have had theirs. */
+  flex: 1 1 0;
   min-height: 0;
   /* Matches the page so object-fit letterboxing is invisible; a white card
      here left visible bars above and below clips that are not 16:9. */
