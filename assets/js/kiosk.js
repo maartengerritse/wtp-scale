@@ -169,26 +169,20 @@
      not take escalates to a full reload of the element. */
   var watch = { lastT: {}, stuckSince: {}, restartedAt: {}, loadingSince: {} };
 
-  /* Only the visible clip keeps a source.
+  /* Every clip keeps its source, and the product clip starts fetching the
+     moment a tag is read rather than when its view appears.
 
-     The Pi 4 has a limited number of hardware H.264 decoder slots. With all
-     three video elements holding a source, one lost the race and fell back to
-     software -- and the two paths convert colour differently, so the keyed
-     presenter appeared in a visibly wrong orange rectangle, on whichever clip
-     happened to lose. Dropping the source from the off-screen views keeps one
-     decode in flight, so every clip gets the hardware path and one colour. */
+     Detaching the off-screen sources was tried, on a theory that clips were
+     competing for the Pi's hardware decoder slots. That theory was wrong --
+     the colour difference was BT.601 versus BT.709 -- and the cost was real:
+     every view change reloaded a clip, so the presenter took ~3s to appear
+     and a product clip ~2s. Both should be instant, so nothing is detached
+     and the product clip buffers during the loading checklist. */
   function attachSource(v) {
     var want = v.getAttribute("data-src");
     if (!want || v.getAttribute("src") === want) return;
     v.setAttribute("src", want);
     v.load();
-  }
-
-  function detachSource(v) {
-    if (!v.getAttribute("src")) return;
-    if (!v.getAttribute("data-src")) v.setAttribute("data-src", v.getAttribute("src"));
-    v.removeAttribute("src");
-    v.load();                       // releases the decoder
   }
 
   function activeVideo() {
@@ -386,9 +380,6 @@
     report("view", { view: next, product: currentProduct ? currentProduct.id : null });
 
     var wanted = activeVideo();
-    [el.welcomeVideo, el.loadingVideo, el.productVideo].forEach(function (v) {
-      if (v !== wanted) detachSource(v);
-    });
     attachSource(wanted);
     play(wanted);
   }
@@ -401,6 +392,14 @@
   function startLoading(product) {
     clearLoadingTimers();
     currentProduct = product;
+
+    // Six seconds of checklist is ample time to fetch the clip, so point the
+    // element at it now. By the time the product view appears the first frame
+    // is decoded and it starts instantly.
+    if (product.video) {
+      el.productVideo.setAttribute("data-src", "assets/video/" + product.video);
+      attachSource(el.productVideo);
+    }
 
     var steps = Array.prototype.slice.call(el.steps.children);
     steps.forEach(function (li) { li.classList.remove("is-done"); });
@@ -556,6 +555,9 @@
       });
 
       displayCurrency = (data.config && data.config.currency) || "EUR";
+      // Attached once, at boot, so switching views never waits on a fetch.
+      attachSource(el.welcomeVideo);
+      attachSource(el.loadingVideo);
       buildSteps();
       el.footer.textContent = (data.config && data.config.footer) || "";
 
