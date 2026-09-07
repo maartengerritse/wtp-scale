@@ -755,6 +755,603 @@
         "totalCosts": 528.2
       },
       "_note": "Needs a tag ID and its own video; currently reuses the Abrasive Sponges clip."
+    },
+    {
+      "id": "toothpaste",
+      "tagIds": [
+        "584608373011"
+      ],
+      "name": "Toothpaste",
+      "currency": "EUR",
+      "subtitle": "Chemicals, 1 tube",
+      "video": "toothpaste.mp4",
+      "specs": {
+        "dimensions": "",
+        "weight": "",
+        "ean": "",
+        "naics": "325620",
+        "origin": {
+          "country": "Netherlands",
+          "code": "nl"
+        }
+      },
+      "materials": [
+        {
+          "label": "Water",
+          "value": 0.0
+        },
+        {
+          "label": "Titanium Dioxide",
+          "value": 0.0012
+        },
+        {
+          "label": "Peppermints",
+          "value": 0.1134
+        },
+        {
+          "label": "Sodium Fluoride",
+          "value": 0.0002
+        },
+        {
+          "label": "Calcium Carbonate",
+          "value": 0.0039
+        },
+        {
+          "label": "Sodium Carboxymethyl Cellulose",
+          "value": 0.0033
+        },
+        {
+          "label": "Glycerin, Refined",
+          "value": 0.0314
+        },
+        {
+          "label": "Sodium Lauryl Sulfate",
+          "value": 0.0022
+        },
+        {
+          "label": "Tube",
+          "value": 0.0395
+        }
+      ],
+      "materialTotal": 0.1952,
+      "distribution": [
+        {
+          "label": "Direct Materials",
+          "value": "32.8%",
+          "bold": true
+        },
+        {
+          "label": "Direct Labour (Netherlands)",
+          "value": "7.7%"
+        },
+        {
+          "label": "Manufacturing Overhead",
+          "value": "6.4%"
+        },
+        {
+          "label": "Cost of Sales",
+          "value": "46.9%",
+          "bold": true
+        },
+        {
+          "label": "GSA & Other Expenses",
+          "value": "49.8%"
+        },
+        {
+          "label": "Profit before Taxes",
+          "value": "3.2%"
+        }
+      ],
+      "totals": {
+        "exWorks": "100%",
+        "totalCosts": 0.5951
+      },
+      "sustainability": {
+        "social": 0.0203,
+        "environmental": 0.2566,
+        "total": 0.2768,
+        "co2eq": 0.1944
+      }
+    },
+    {
+      "id": "tape-measure",
+      "tagIds": [
+        "584608307474"
+      ],
+      "name": "Tape Measure",
+      "currency": "EUR",
+      "subtitle": "Steel & ABS, 1 piece",
+      "video": "tape-measure.mp4",
+      "specs": {
+        "dimensions": "",
+        "weight": "",
+        "ean": "",
+        "naics": "332216",
+        "origin": {
+          "country": "Taiwan",
+          "code": "tw"
+        }
+      },
+      "materials": [
+        {
+          "label": "Acrylonitrile Butadiene Styrene",
+          "value": 0.1011
+        },
+        {
+          "label": "Tape, end hook & belt clip",
+          "value": 0.1134
+        },
+        {
+          "label": "Return spring",
+          "value": 0.0187
+        },
+        {
+          "label": "Rivets",
+          "value": 0.0164
+        },
+        {
+          "label": "Thermoplastic Elastomer",
+          "value": 0.0193
+        }
+      ],
+      "materialTotal": 0.2689,
+      "distribution": [
+        {
+          "label": "Direct Materials",
+          "value": "35.4%",
+          "bold": true
+        },
+        {
+          "label": "Direct Labour (Taiwan)",
+          "value": "7.7%"
+        },
+        {
+          "label": "Manufacturing Overhead",
+          "value": "10.4%"
+        },
+        {
+          "label": "Cost of Sales",
+          "value": "53.5%",
+          "bold": true
+        },
+        {
+          "label": "GSA & Other Expenses",
+          "value": "41.1%"
+        },
+        {
+          "label": "Profit before Taxes",
+          "value": "5.4%"
+        }
+      ],
+      "totals": {
+        "exWorks": "100%",
+        "totalCosts": 0.7599
+      },
+      "sustainability": {
+        "social": 0.0628,
+        "environmental": 0.4065,
+        "total": 0.4692,
+        "co2eq": 0.3144
+      }
+    },
+    {
+      "id": "electrical-cable",
+      "tagIds": [
+        "584608241937"
+      ],
+      "name": "Electrical Cable",
+      "currency": "EUR",
+      "subtitle": "Copper & PVC, low voltage",
+      "video": "electrical-cable.mp4",
+      "specs": {
+        "dimensions": "",
+        "weight": "",
+        "ean": "",
+        "naics": "332618",
+        "origin": {
+          "country": "China",
+          "code": "cn"
+        }
+      },
+      "materials": [
+        {
+          "label": "Polyvinyl Chloride, Plasticized",
+          "value": 0.1683
+        },
+        {
+          "label": "Copper Rods",
+          "value": 1.1468
+        }
+      ],
+      "materialTotal": 1.3151,
+      "distribution": [
+        {
+          "label": "Direct Materials",
+          "value": "65.5%",
+          "bold": true
+        },
+        {
+          "label": "Direct Labour (China)",
+          "value": "3.1%"
+        },
+        {
+          "label": "Manufacturing Overhead",
+          "value": "6.8%"
+        },
+        {
+          "label": "Cost of Sales",
+          "value": "75.5%",
+          "bold": true
+        },
+        {
+          "label": "GSA & Other Expenses",
+          "value": "18.1%"
+        },
+        {
+          "label": "Profit before Taxes",
+          "value": "6.4%"
+        }
+      ],
+      "totals": {
+        "exWorks": "100%",
+        "totalCosts": 2.0023
+      },
+      "sustainability": {
+        "social": 0.3026,
+        "environmental": 1.6322,
+        "total": 1.9348,
+        "co2eq": 1.8684
+      }
+    },
+    {
+      "id": "nitrile-gloves",
+      "tagIds": [
+        "584608176400"
+      ],
+      "name": "Nitrile Gloves",
+      "currency": "USD",
+      "subtitle": "Nitrile rubber",
+      "video": "nitrile-gloves.mp4",
+      "specs": {
+        "dimensions": "",
+        "weight": "",
+        "ean": "",
+        "naics": "339113",
+        "origin": {
+          "country": "Malaysia",
+          "code": "my"
+        }
+      },
+      "materials": [
+        {
+          "label": "Acrylonitrile Butadiene Rubber",
+          "value": 1.7322
+        },
+        {
+          "label": "Component (PPG)",
+          "value": 0.1718
+        }
+      ],
+      "materialTotal": 1.904,
+      "distribution": [
+        {
+          "label": "Direct Materials",
+          "value": "50.2%",
+          "bold": true
+        },
+        {
+          "label": "Direct Labour (Malaysia)",
+          "value": "1.6%"
+        },
+        {
+          "label": "Manufacturing Overhead",
+          "value": "7.6%"
+        },
+        {
+          "label": "Cost of Sales",
+          "value": "59.4%",
+          "bold": true
+        },
+        {
+          "label": "GSA & Other Expenses",
+          "value": "33.1%"
+        },
+        {
+          "label": "Profit before Taxes",
+          "value": "7.5%"
+        }
+      ],
+      "totals": {
+        "exWorks": "100%",
+        "totalCosts": 3.7827
+      },
+      "sustainability": {
+        "social": 0.4247,
+        "environmental": 2.9477,
+        "total": 3.3724,
+        "co2eq": 2.907
+      }
+    },
+    {
+      "id": "screwdriver",
+      "tagIds": [
+        "584608110871"
+      ],
+      "name": "Screwdriver",
+      "currency": "USD",
+      "subtitle": "Chrome-vanadium steel, 1 piece",
+      "video": "screwdriver.mp4",
+      "specs": {
+        "dimensions": "",
+        "weight": "",
+        "ean": "",
+        "naics": "332216",
+        "origin": {
+          "country": "China",
+          "code": "cn"
+        }
+      },
+      "materials": [
+        {
+          "label": "Nickel",
+          "value": 0.0038
+        },
+        {
+          "label": "Titanium Dioxide",
+          "value": 0.0011
+        },
+        {
+          "label": "Chrome-Vanadium Steel",
+          "value": 0.0185
+        },
+        {
+          "label": "Carbon Black",
+          "value": 0.0002
+        },
+        {
+          "label": "Epoxy Resin",
+          "value": 0.0021
+        },
+        {
+          "label": "Chromium Metal",
+          "value": 0.0009
+        },
+        {
+          "label": "Polyether Polyol",
+          "value": 0.028
+        },
+        {
+          "label": "Methylene Diphenyl Diisocyanate",
+          "value": 0.0238
+        }
+      ],
+      "materialTotal": 0.0784,
+      "distribution": [
+        {
+          "label": "Direct Materials",
+          "value": "39.2%",
+          "bold": true
+        },
+        {
+          "label": "Direct Labour (China)",
+          "value": "3.9%"
+        },
+        {
+          "label": "Manufacturing Overhead",
+          "value": "10.3%"
+        },
+        {
+          "label": "Cost of Sales",
+          "value": "53.4%",
+          "bold": true
+        },
+        {
+          "label": "GSA & Other Expenses",
+          "value": "41.2%"
+        },
+        {
+          "label": "Profit before Taxes",
+          "value": "5.4%"
+        }
+      ],
+      "totals": {
+        "exWorks": "100%",
+        "totalCosts": 0.1995
+      },
+      "sustainability": {
+        "social": 0.0255,
+        "environmental": 0.2141,
+        "total": 0.2396,
+        "co2eq": 0.1416
+      }
+    },
+    {
+      "id": "aa-battery",
+      "tagIds": [
+        "584608045334"
+      ],
+      "name": "AA Battery",
+      "currency": "USD",
+      "subtitle": "Primary battery, 1 piece",
+      "video": "aa-battery.mp4",
+      "specs": {
+        "dimensions": "",
+        "weight": "",
+        "ean": "",
+        "naics": "335910",
+        "origin": {
+          "country": "China",
+          "code": "cn"
+        }
+      },
+      "materials": [
+        {
+          "label": "Zinc, Spot",
+          "value": 0.0451
+        },
+        {
+          "label": "Polypropylene Homopolymer",
+          "value": 0.0007
+        },
+        {
+          "label": "Iron Ore, 62%",
+          "value": 0.0021
+        },
+        {
+          "label": "Potassium Chloride",
+          "value": 0.0027
+        },
+        {
+          "label": "Zinc Oxide",
+          "value": 0.0012
+        },
+        {
+          "label": "Kraft Linerboard",
+          "value": 0.0032
+        },
+        {
+          "label": "Paraffin Wax",
+          "value": 0.0001
+        },
+        {
+          "label": "Graphite",
+          "value": 0.0033
+        },
+        {
+          "label": "Manganese Flakes",
+          "value": 0.08
+        },
+        {
+          "label": "Polyethylene Terephthalate, FR530",
+          "value": 0.0059
+        },
+        {
+          "label": "Brass, Computed",
+          "value": 0.0171
+        },
+        {
+          "label": "Filter Paper",
+          "value": 0.0048
+        },
+        {
+          "label": "Process Water",
+          "value": 0.0
+        },
+        {
+          "label": "Box carton",
+          "value": 0.0174
+        }
+      ],
+      "materialTotal": 0.1838,
+      "distribution": [
+        {
+          "label": "Direct Materials",
+          "value": "68.2%",
+          "bold": true
+        },
+        {
+          "label": "Direct Labour (China)",
+          "value": "1.8%"
+        },
+        {
+          "label": "Manufacturing Overhead",
+          "value": "6.2%"
+        },
+        {
+          "label": "Cost of Sales",
+          "value": "76.2%",
+          "bold": true
+        },
+        {
+          "label": "GSA & Other Expenses",
+          "value": "13.7%"
+        },
+        {
+          "label": "Profit before Taxes",
+          "value": "10.1%"
+        }
+      ],
+      "totals": {
+        "exWorks": "100%",
+        "totalCosts": 0.2691
+      },
+      "sustainability": {
+        "social": 0.0593,
+        "environmental": 0.2399,
+        "total": 0.2991,
+        "co2eq": 0.242
+      }
+    },
+    {
+      "id": "brass-valve",
+      "tagIds": [],
+      "name": "Brass Valve",
+      "currency": "EUR",
+      "subtitle": "Brass & bronze, 1 piece",
+      "video": "brass-valve.mp4",
+      "specs": {
+        "dimensions": "",
+        "weight": "",
+        "ean": "",
+        "naics": "332911",
+        "origin": {
+          "country": "Italy",
+          "code": "it"
+        }
+      },
+      "materials": [
+        {
+          "label": "Bronze, Computed",
+          "value": 0.3003
+        },
+        {
+          "label": "Brass OT 58, Computed",
+          "value": 2.6133
+        },
+        {
+          "label": "Acrylonitrile Butadiene Styrene",
+          "value": 0.1218
+        }
+      ],
+      "materialTotal": 3.0355,
+      "distribution": [
+        {
+          "label": "Direct Materials",
+          "value": "43.2%",
+          "bold": true
+        },
+        {
+          "label": "Direct Labour (Italy)",
+          "value": "10.8%"
+        },
+        {
+          "label": "Manufacturing Overhead",
+          "value": "7.1%"
+        },
+        {
+          "label": "Cost of Sales",
+          "value": "61.1%",
+          "bold": true
+        },
+        {
+          "label": "GSA & Other Expenses",
+          "value": "28.2%"
+        },
+        {
+          "label": "Profit before Taxes",
+          "value": "10.8%"
+        }
+      ],
+      "totals": {
+        "exWorks": "100%",
+        "totalCosts": 7.0001
+      },
+      "sustainability": {
+        "social": 0.4904,
+        "environmental": 2.849,
+        "total": 3.3394,
+        "co2eq": 3.1257
+      }
     }
   ]
 }

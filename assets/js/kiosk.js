@@ -107,7 +107,15 @@
   }
 
   function decimalise(value, decimals) {
-    return value.toFixed(decimals).replace(".", ",");
+    // Trim trailing zeros the conversion introduced -- USD 0,2691 becomes
+    // EUR 0,23 rather than 0,2300 -- but never fewer than two decimals.
+    var text = value.toFixed(decimals);
+    if (text.indexOf(".") >= 0) {
+      text = text.replace(/0+$/, "");
+      var frac = text.split(".")[1] || "";
+      while (frac.length < 2) { text += "0"; frac += "0"; }
+    }
+    return text.replace(".", ",");
   }
 
   function money(amount, sourceCurrency) {
