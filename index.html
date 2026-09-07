@@ -40,17 +40,20 @@
 
       <div class="loading">
         <ul class="loading__steps" id="loading-steps"><!-- built from products.json --></ul>
-        <div class="loading__video">
-          <video id="loading-video" muted loop playsinline preload="auto">
-            <source src="assets/video/loading.mp4" type="video/mp4" />
-          </video>
-        </div>
+      </div>
+
+      <!-- Same treatment as the welcome presenter: keyed onto the orange and
+           anchored to the corner. Sat a little lower so the waist-down part,
+           where a dark skirt defeats the key, is below the screen edge. -->
+      <div class="loading__video">
+        <video id="loading-video" muted loop playsinline preload="auto">
+          <source src="assets/video/loading-keyed.mp4" type="video/mp4" />
+        </video>
       </div>
     </section>
 
     <!-- ================= PRODUCT ================= -->
     <section class="view view--product" id="view-product">
-      <img src="assets/img/logo.svg" alt="Buynamics" class="corner-logo" />
 
       <div class="product">
         <!-- Left: the receipt -->

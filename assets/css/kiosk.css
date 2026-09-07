@@ -81,7 +81,10 @@ html, body {
 /* Welcome and loading lead with WTP orange; the product page stays neutral
    so the cost breakdown reads as the payoff rather than more branding. */
 .view--welcome,
-.view--loading { background: var(--orange); color: var(--white); }
+.view--loading {
+  background: radial-gradient(ellipse 70% 60% at 50% 45%, #ff7d3f 0%, var(--orange) 70%);
+  color: var(--white);
+}
 .view--product { background: var(--neutral); }
 
 .corner-logo {
@@ -99,26 +102,29 @@ video { display: block; }
 
 .welcome {
   height: 100%;
-  /* Right padding keeps the text clear of the presenter in the corner. */
-  padding: calc(var(--safe-y) * 1.6) 42vw var(--safe-y) var(--safe-x);
+  padding: calc(var(--safe-y) * 1.6) var(--safe-x) var(--safe-y);
   display: grid;
   grid-template-rows: auto auto;
-  gap: calc(var(--u) * 3);
+  gap: calc(var(--u) * 3.2);
   justify-items: center;
   align-content: center;
   text-align: center;
+  position: relative;
+  z-index: 3;                 /* text stays above the presenter if they meet */
 }
 
 .welcome__text h1 {
   margin: 0;
-  font-size: calc(var(--u) * 4.2);
+  font-size: calc(var(--u) * 5.6);
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
+  line-height: 1.02;
   color: var(--white);
+  text-shadow: 0 0.06em 0.4em rgba(0, 0, 0, 0.12);
 }
 .welcome__text h2 {
   margin: calc(var(--u) * 0.3) 0 0;
-  font-size: calc(var(--u) * 1.7);
+  font-size: calc(var(--u) * 2.2);
   font-weight: 400;
   color: var(--white);
   opacity: 0.92;
@@ -152,11 +158,20 @@ video { display: block; }
 }
 .welcome__prompt p {
   margin: 0;
-  font-size: calc(var(--u) * 1.5);
+  font-size: calc(var(--u) * 1.9);
   font-weight: 600;
 }
-.chevron { width: calc(var(--u) * 2.2); height: auto; }
-.scale-gif { width: calc(var(--u) * 7); height: auto; }
+.chevron { width: calc(var(--u) * 2.6); height: auto; }
+.scale-gif { width: calc(var(--u) * 8.5); height: auto; }
+
+/* A slow downward nudge on the chevrons: the one thing on the screen that
+   moves toward the scale, so the eye lands on the instruction. */
+.welcome__prompt .chevron { animation: nudge 2.4s ease-in-out infinite; }
+.welcome__prompt .chevron:last-child { animation-delay: 0.4s; }
+@keyframes nudge {
+  0%, 100% { transform: translateY(0); opacity: 0.85; }
+  50%      { transform: translateY(0.45em); opacity: 1; }
+}
 
 /* ------------------------------------------------------------- loading -- */
 
@@ -164,17 +179,19 @@ video { display: block; }
   height: 100%;
   padding: calc(var(--safe-y) * 1.6) var(--safe-x) var(--safe-y);
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  align-items: center;
-  gap: calc(var(--u) * 3);
+  align-content: center;
+  justify-items: center;
+  position: relative;
+  z-index: 3;
 }
 
 .loading__steps { list-style: none; margin: 0; padding: 0; display: grid; gap: calc(var(--u) * 1.4); }
 .loading__steps li {
   display: flex;
   align-items: center;
-  gap: calc(var(--u) * 1);
-  font-size: calc(var(--u) * 1.7);
+  gap: calc(var(--u) * 1.1);
+  font-size: calc(var(--u) * 2.1);
+  font-weight: 500;
 }
 
 /* Spinner until the step "completes", then a tick. */
@@ -198,19 +215,22 @@ video { display: block; }
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.loading__video { min-width: 0; display: flex; justify-content: center; }
+.loading__video {
+  position: absolute;
+  right: 0;
+  bottom: -24vh;              /* waist-down is below the edge: see index.html */
+  z-index: 2;
+  pointer-events: none;
+  display: flex;
+  align-items: flex-end;
+}
 .loading__video video {
-  /* intro.mp4 and loading.mp4 carry a non-square pixel aspect ratio and
-     display portrait (9:16). Let the box hug the video instead of stretching
-     to the column, so the frame wraps the picture rather than empty space. */
+  height: 100vh;
   width: auto;
-  height: auto;
-  max-width: 100%;
-  max-height: 72vh;
+  max-width: 46vw;
   object-fit: contain;
-  border-radius: 1.1rem;
-  box-shadow: 0 0 0 0.35rem rgba(255, 255, 255, 0.9),
-              0 1.2rem 2.5rem rgba(0, 0, 0, 0.22);
+  object-position: bottom right;
+  display: block;
 }
 
 /* ------------------------------------------------------------- product -- */
