@@ -67,11 +67,28 @@ Total Costs × Direct Materials % matches Total Material Costs.
 
 ## Still missing
 
+Regenerate this list with `python3 tools/validate.py --missing`.
+
 | Product | Needs |
 |---|---|
-| Garden Trowel | RFID tag ID — the old script gave it Hardware Box's ID, so it has never once displayed |
-| Smartphone | RFID tag ID, and its own video (currently reuses the Abrasive Sponges clip) |
-| Photo Frame, Swivel Castor, Shower Gel, Binder, Smartphone | dimensions, EAN, NAICS, country of origin, and the four sustainability figures |
+| Photo Frame | dimensions, EAN, NAICS, origin, impact metrics |
+| Storage Box | — complete — |
+| Abrasive Sponges | EAN |
+| Swivel Castor | dimensions, EAN, NAICS, origin, impact metrics |
+| Foldable Garden Saw | — complete — |
+| Shower Gel | dimensions, NAICS, origin, impact metrics |
+| Hardware Box | — complete — |
+| Garden Trowel | **RFID tag** |
+| Binder | dimensions, EAN, NAICS, origin, impact metrics |
+| Smartphone | dimensions, EAN, NAICS, impact metrics |
+| Toothpaste | dimensions, weight, EAN |
+| Tape Measure | dimensions, weight, EAN |
+| Electrical Cable | dimensions, weight, EAN |
+| Nitrile Gloves | dimensions, weight, EAN |
+| Screwdriver | dimensions, weight, EAN |
+| AA Battery | dimensions, weight, EAN |
+| Brass Valve | **RFID tag** (deliberate — the part may never be ordered), dimensions, weight, EAN |
 
 Fields left blank simply do not render, so these products display correctly
-today — just with fewer sections than the five complete ones.
+today — just with fewer sections than the three complete ones. A missing RFID
+tag is different: without one the reader can never bring the product up.

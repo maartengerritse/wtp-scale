@@ -11,6 +11,9 @@ Catches the failure modes that broke the previous version:
   - videos present on disk that nothing references
 
 Run before every commit:  python3 tools/validate.py
+
+  --missing   list, per product, which optional fields are still blank, so the
+              gaps can be filled in one pass. Reports only; never fails.
 """
 
 import json
@@ -48,7 +51,45 @@ def check_amounts(product, errors):
         errors.append(f"{name}: currency {currency!r} is not one of {CURRENCIES}")
 
 
+# Optional fields. A blank one simply does not render, so the page stays
+# correct -- but a product with none of them looks noticeably barer than a
+# complete one, which is what this report is for. A missing tag is the one
+# entry here that is not cosmetic: without it the reader cannot bring the
+# product up at all.
+def missing_fields(product):
+    specs = product.get("specs") or {}
+    impact = product.get("sustainability") or {}
+    gaps = []
+    if not product.get("tagIds"):
+        gaps.append("RFID tag")
+    for key, label in (("dimensions", "dimensions"), ("weight", "weight"),
+                       ("ean", "EAN"), ("naics", "NAICS")):
+        if not specs.get(key):
+            gaps.append(label)
+    if not (specs.get("origin") or {}).get("country"):
+        gaps.append("origin")
+    if not any(impact.get(k) for k in ("social", "environmental", "total", "co2eq")):
+        gaps.append("impact metrics")
+    return gaps
+
+
+def report_missing(products):
+    width = max(len(p.get("name", p["id"])) for p in products)
+    incomplete = 0
+    for p in products:
+        gaps = missing_fields(p)
+        incomplete += bool(gaps)
+        name = p.get("name", p["id"])
+        print(f"{name:<{width}}  {', '.join(gaps) if gaps else '-- complete --'}")
+    print(f"\n{len(products) - incomplete} of {len(products)} products complete.")
+    return 0
+
+
 def main():
+    if "--missing" in sys.argv:
+        doc = json.loads((ROOT / "products.json").read_text(encoding="utf-8"))
+        return report_missing(doc.get("products", []))
+
     errors, warnings = [], []
     doc = json.loads((ROOT / "products.json").read_text(encoding="utf-8"))
     products = doc.get("products", [])

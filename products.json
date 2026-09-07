@@ -377,7 +377,7 @@
       "specs": {
         "dimensions": "",
         "weight": "300g",
-        "ean": "",
+        "ean": "8720674232683",
         "naics": ""
       },
       "materials": [
@@ -680,16 +680,22 @@
     },
     {
       "id": "smartphone",
-      "tagIds": [],
+      "tagIds": [
+        "584607979797"
+      ],
       "name": "Smartphone",
       "currency": "EUR",
       "subtitle": "Electronics, 1 piece",
-      "video": "product-3.mp4",
+      "video": "smartphone.mp4",
       "specs": {
         "dimensions": "",
         "weight": "112g",
         "ean": "",
-        "naics": ""
+        "naics": "",
+        "origin": {
+          "country": "China",
+          "code": "cn"
+        }
       },
       "materials": [
         {
@@ -753,8 +759,7 @@
       "totals": {
         "exWorks": "100%",
         "totalCosts": 528.2
-      },
-      "_note": "Needs a tag ID and its own video; currently reuses the Abrasive Sponges clip."
+      }
     },
     {
       "id": "toothpaste",
@@ -941,7 +946,7 @@
       ],
       "name": "Electrical Cable",
       "currency": "EUR",
-      "subtitle": "Copper & PVC, low voltage",
+      "subtitle": "Copper & PVC",
       "video": "electrical-cable.mp4",
       "specs": {
         "dimensions": "",
