@@ -19,7 +19,10 @@
 
   var data = null;
   var byTag = Object.create(null);
-  var view = "welcome";
+  // Starts as null, not "welcome": show() returns early when the view is
+  // already current, so seeding it with "welcome" made the first call a
+  // no-op and the welcome clip never got its source attached.
+  var view = null;
   var currentProduct = null;
   var loadingTimers = [];
   var clearTimer = null;
