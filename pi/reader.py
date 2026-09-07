@@ -33,6 +33,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 PRODUCTS = ROOT / "products.json"
 
+# Per-device settings the WTP Scale app writes (currently just the display
+# currency). Deliberately outside git: it is a property of this Pi, not of the
+# project, and must survive `git reset --hard` on every update.
+SETTINGS = ROOT / ".wtp-settings.json"
+
 # How long a tag may go unseen before we call the scale empty. The reader
 # misses reads intermittently even while a tag sits still, so a single failed
 # read must not blank the screen.
@@ -83,7 +88,17 @@ class State:
     def snapshot(self):
         tag = self.current()
         with self._lock:
-            return {"tag": tag, "reader": self._reader, "readerInfo": self._reader_info}
+            return {"tag": tag, "reader": self._reader, "readerInfo": self._reader_info,
+                    "currency": read_setting("currency")}
+
+
+def read_setting(key, default=None):
+    """Read one device setting. Missing or unreadable file is not an error --
+    the page falls back to config.currency in products.json."""
+    try:
+        return json.loads(SETTINGS.read_text(encoding="utf-8")).get(key, default)
+    except (OSError, ValueError):
+        return default
 
 
 STATE = State()

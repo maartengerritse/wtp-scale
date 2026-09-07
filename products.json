@@ -1,5 +1,7 @@
 {
   "config": {
+    "currency": "EUR",
+    "usdPerEur": 1.17,
     "loadingSeconds": 10,
     "returnDelaySeconds": 1,
     "wrapBeforeEndSeconds": 3.5,
@@ -19,6 +21,7 @@
         "584615582081"
       ],
       "name": "Photo Frame",
+      "currency": "EUR",
       "subtitle": "Wood, 10 x 15 cm",
       "video": "product-1.mp4",
       "specs": {
@@ -30,30 +33,30 @@
       "materials": [
         {
           "label": "EPS",
-          "value": "€0,08"
+          "value": 0.08
         },
         {
           "label": "LDPE",
-          "value": "€0,01"
+          "value": 0.01
         },
         {
           "label": "Glass",
-          "value": "€0,01"
+          "value": 0.01
         },
         {
           "label": "Coated paper",
-          "value": "€0,001"
+          "value": 0.001
         },
         {
           "label": "HDF",
-          "value": "€0,01"
+          "value": 0.01
         },
         {
           "label": "Metal parts",
-          "value": "€0,007"
+          "value": 0.007
         }
       ],
-      "materialTotal": "€0,12",
+      "materialTotal": 0.12,
       "distribution": [
         {
           "label": "Direct Materials",
@@ -84,7 +87,7 @@
       ],
       "totals": {
         "exWorks": "100%",
-        "totalCosts": "€0,20"
+        "totalCosts": 0.2
       }
     },
     {
@@ -93,6 +96,7 @@
         "584615516544"
       ],
       "name": "Storage Box",
+      "currency": "EUR",
       "subtitle": "Plastic, 20 x 15 x 6,5 cm",
       "video": "product-2.mp4",
       "specs": {
@@ -108,10 +112,10 @@
       "materials": [
         {
           "label": "PolyPropylene (PP)",
-          "value": "€0,10"
+          "value": 0.1
         }
       ],
-      "materialTotal": "€0,10",
+      "materialTotal": 0.1,
       "distribution": [
         {
           "label": "Direct Materials",
@@ -142,13 +146,13 @@
       ],
       "totals": {
         "exWorks": "100%",
-        "totalCosts": "€0,32"
+        "totalCosts": 0.32
       },
       "sustainability": {
-        "social": "€0,007",
-        "environmental": "€0,03",
-        "total": "€0,04",
-        "co2eq": "0,05"
+        "social": 0.007,
+        "environmental": 0.03,
+        "total": 0.04,
+        "co2eq": 0.05
       }
     },
     {
@@ -157,70 +161,71 @@
         "584615778716"
       ],
       "name": "Abrasive Sponges",
-      "subtitle": "Plastics, 5 pieces",
+      "currency": "USD",
+      "subtitle": "Synthetic fibres, 5 pieces",
       "video": "product-3.mp4",
       "specs": {
         "dimensions": "10×7×3CM",
         "weight": "0.05KG",
-        "ean": "6901234567891",
-        "naics": "325612",
+        "ean": "",
+        "naics": "325220",
         "origin": {
-          "country": "China",
-          "code": "cn"
+          "country": "Netherlands",
+          "code": "nl"
         }
       },
       "materials": [
         {
-          "label": "Polyols Flexible (PU)",
-          "value": "€0,09"
+          "label": "Polypropylene Copolymer, Film",
+          "value": 0.0046
         },
         {
-          "label": "PolyPropylene (PP)",
-          "value": "€0,004"
+          "label": "Polyols, Flexible",
+          "value": 0.0977
         },
         {
-          "label": "Nylon PolyAmide (PA)",
-          "value": "€0,03"
+          "label": "Nylon Polyamide 6, Natural",
+          "value": 0.0377
         }
       ],
-      "materialTotal": "€0,12",
+      "materialTotal": 0.14,
       "distribution": [
         {
           "label": "Direct Materials",
-          "value": "39.5%",
+          "value": "41.3%",
           "bold": true
         },
         {
-          "label": "Direct Labour (China)",
-          "value": "12.6%"
+          "label": "Direct Labour (Netherlands)",
+          "value": "12.1%"
         },
         {
           "label": "Manufacturing Overhead",
-          "value": "14.3%"
+          "value": "14.6%"
         },
         {
           "label": "Cost of Sales",
-          "value": "66.5%",
+          "value": "68.0%",
           "bold": true
         },
         {
           "label": "GSA & Other Expenses",
-          "value": "25.8%"
+          "value": "25.1%"
         },
         {
           "label": "Profit before Taxes",
-          "value": "7.7%"
+          "value": "7.0%"
         }
       ],
       "totals": {
         "exWorks": "100%",
-        "totalCosts": "€0,32"
+        "totalCosts": 0.3374
       },
       "sustainability": {
-        "social": "€0,007",
-        "environmental": "€0,08",
-        "total": "€0,08",
-        "co2eq": "0,12"
+        "social": 0.0089,
+        "environmental": 0.1417,
+        "total": 0.1505,
+        "co2eq": 0.1954
       }
     },
     {
@@ -229,6 +234,7 @@
         "584615975327"
       ],
       "name": "Swivel Castor",
+      "currency": "EUR",
       "subtitle": "Metal, 1 piece",
       "video": "product-4.mp4",
       "specs": {
@@ -240,14 +246,14 @@
       "materials": [
         {
           "label": "Steel Electro Galvanised Coils",
-          "value": "€0,21"
+          "value": 0.21
         },
         {
           "label": "Wheel",
-          "value": "€0,20"
+          "value": 0.2
         }
       ],
-      "materialTotal": "€0,41",
+      "materialTotal": 0.41,
       "distribution": [
         {
           "label": "Direct Materials",
@@ -278,7 +284,7 @@
       ],
       "totals": {
         "exWorks": "100%",
-        "totalCosts": "€0,80"
+        "totalCosts": 0.8
       }
     },
     {
@@ -287,6 +293,7 @@
         "584615516289"
       ],
       "name": "Foldable Garden Saw",
+      "currency": "EUR",
       "subtitle": "Steel & plastic, 1 piece",
       "video": "product-5.mp4",
       "specs": {
@@ -302,22 +309,22 @@
       "materials": [
         {
           "label": "Kraft Cardboard (CHN)",
-          "value": "€0,470"
+          "value": 0.47
         },
         {
           "label": "Stainless Steel Cold Rolled Coil 304 (CHN)",
-          "value": "€0,012"
+          "value": 0.012
         },
         {
           "label": "Grip (plastic) (China)",
-          "value": "€0,215"
+          "value": 0.215
         },
         {
           "label": "Hinge & screw mechanism (steel) (China)",
-          "value": "€0,228"
+          "value": 0.228
         }
       ],
-      "materialTotal": "€0,925",
+      "materialTotal": 0.925,
       "distribution": [
         {
           "label": "Direct Materials",
@@ -348,13 +355,13 @@
       ],
       "totals": {
         "exWorks": "100%",
-        "totalCosts": "€1,374"
+        "totalCosts": 1.374
       },
       "sustainability": {
-        "social": "€0,18",
-        "environmental": "€0,92",
-        "total": "€1,10",
-        "co2eq": "0,88"
+        "social": 0.18,
+        "environmental": 0.92,
+        "total": 1.1,
+        "co2eq": 0.88
       },
       "_note": "Total Material Costs €0,925 does not reconcile with 34.2% of €1,374: see DATA-ISSUES.md"
     },
@@ -364,6 +371,7 @@
         "584608766249"
       ],
       "name": "Shower Gel",
+      "currency": "EUR",
       "subtitle": "Plastics/Chemicals, 1 piece",
       "video": "product-6.mp4",
       "specs": {
@@ -375,58 +383,58 @@
       "materials": [
         {
           "label": "Caustic Soda (NaOH)",
-          "value": "€0,001"
+          "value": 0.001
         },
         {
           "label": "Critic Acid Monohydrate",
-          "value": "€0,002"
+          "value": 0.002
         },
         {
           "label": "Cocamidopropyl Betaine",
-          "value": "€0,016"
+          "value": 0.016
         },
         {
           "label": "Coco Glucoside",
-          "value": "€0,015"
+          "value": 0.015
         },
         {
           "label": "Custom/Others",
-          "value": "€0,195"
+          "value": 0.195
         },
         {
           "label": "Glycerine",
-          "value": "€0,006"
+          "value": 0.006
         },
         {
           "label": "Mixed Tocopherol",
-          "value": "€0,042"
+          "value": 0.042
         },
         {
           "label": "Raw Glycerine",
-          "value": "€0,003"
+          "value": 0.003
         },
         {
           "label": "Sodium Benzoate",
-          "value": "€0,005"
+          "value": 0.005
         },
         {
           "label": "Sodium Chloride",
-          "value": "€0,002"
+          "value": 0.002
         },
         {
           "label": "Sodium Lauryl Sulphate",
-          "value": "€0,049"
+          "value": 0.049
         },
         {
           "label": "Water",
-          "value": "€0,001"
+          "value": 0.001
         },
         {
           "label": "HDPE Bottle",
-          "value": "€0,069"
+          "value": 0.069
         }
       ],
-      "materialTotal": "€0,405",
+      "materialTotal": 0.405,
       "distribution": [
         {
           "label": "Direct Materials",
@@ -457,7 +465,7 @@
       ],
       "totals": {
         "exWorks": "100%",
-        "totalCosts": "€0,938"
+        "totalCosts": 0.938
       },
       "_note": "Direct Materials 53.8% does not reconcile: see DATA-ISSUES.md"
     },
@@ -467,6 +475,7 @@
         "584608700712"
       ],
       "name": "Hardware Box",
+      "currency": "EUR",
       "subtitle": "Steel & plastic, 1 piece",
       "video": "product-7.mp4",
       "specs": {
@@ -482,18 +491,18 @@
       "materials": [
         {
           "label": "Steel Electro Galvanised Coils (ASIA)",
-          "value": "€0,237"
+          "value": 0.237
         },
         {
           "label": "PP Tray (plastic) (China)",
-          "value": "€0,054"
+          "value": 0.054
         },
         {
           "label": "Wall Plugs (plastic) (China)",
-          "value": "€0,140"
+          "value": 0.14
         }
       ],
-      "materialTotal": "€0,430",
+      "materialTotal": 0.43,
       "distribution": [
         {
           "label": "Direct Materials",
@@ -524,19 +533,20 @@
       ],
       "totals": {
         "exWorks": "100%",
-        "totalCosts": "€0,799"
+        "totalCosts": 0.799
       },
       "sustainability": {
-        "social": "€0,14",
-        "environmental": "€0,86",
-        "total": "€1,-",
-        "co2eq": "0,80"
+        "social": 0.14,
+        "environmental": 0.86,
+        "total": 1.0,
+        "co2eq": 0.8
       }
     },
     {
       "id": "garden-trowel",
       "tagIds": [],
       "name": "Garden Trowel",
+      "currency": "EUR",
       "subtitle": "Steel & plastic, 1 piece",
       "video": "product-8.mp4",
       "specs": {
@@ -552,14 +562,14 @@
       "materials": [
         {
           "label": "Steel Cold Rolled Coils (CRC) (CHN)",
-          "value": "€0,102"
+          "value": 0.102
         },
         {
           "label": "Handle (plastic) (China)",
-          "value": "€0,190"
+          "value": 0.19
         }
       ],
-      "materialTotal": "€0,292",
+      "materialTotal": 0.292,
       "distribution": [
         {
           "label": "Direct Materials",
@@ -590,13 +600,13 @@
       ],
       "totals": {
         "exWorks": "100%",
-        "totalCosts": "€0,870"
+        "totalCosts": 0.87
       },
       "sustainability": {
-        "social": "€0,11",
-        "environmental": "€0,52",
-        "total": "€0,63",
-        "co2eq": "0,52"
+        "social": 0.11,
+        "environmental": 0.52,
+        "total": 0.63,
+        "co2eq": 0.52
       },
       "_note": "Needs a tag ID: the old script reused Hardware Box's ID so this never displayed."
     },
@@ -606,6 +616,7 @@
         "584608569646"
       ],
       "name": "Binder",
+      "currency": "EUR",
       "subtitle": "Cardboard, 1 piece",
       "video": "product-9.mp4",
       "specs": {
@@ -617,22 +628,22 @@
       "materials": [
         {
           "label": "Coated Paper",
-          "value": "€0,024"
+          "value": 0.024
         },
         {
           "label": "Kraft Paper",
-          "value": "€0,017"
+          "value": 0.017
         },
         {
           "label": "Paperboard",
-          "value": "€0,113"
+          "value": 0.113
         },
         {
           "label": "Lever Mechanism",
-          "value": "€0,089"
+          "value": 0.089
         }
       ],
-      "materialTotal": "€0,242",
+      "materialTotal": 0.242,
       "distribution": [
         {
           "label": "Direct Materials",
@@ -663,7 +674,7 @@
       ],
       "totals": {
         "exWorks": "100%",
-        "totalCosts": "€0,0336"
+        "totalCosts": 0.0336
       },
       "_note": "Total Costs and percentages do not reconcile: see DATA-ISSUES.md"
     },
@@ -671,6 +682,7 @@
       "id": "smartphone",
       "tagIds": [],
       "name": "Smartphone",
+      "currency": "EUR",
       "subtitle": "Electronics, 1 piece",
       "video": "product-3.mp4",
       "specs": {
@@ -682,34 +694,34 @@
       "materials": [
         {
           "label": "Core Electronics",
-          "value": "€154,60"
+          "value": 154.6
         },
         {
           "label": "Display (LCD)",
-          "value": "€80,80"
+          "value": 80.8
         },
         {
           "label": "Camera & Sensors",
-          "value": "€44,40"
+          "value": 44.4
         },
         {
           "label": "Structural Components",
-          "value": "€40,70"
+          "value": 40.7
         },
         {
           "label": "Power & Battery System",
-          "value": "€18,50"
+          "value": 18.5
         },
         {
           "label": "Audio & Vibrator",
-          "value": "€14,80"
+          "value": 14.8
         },
         {
           "label": "Connectivity & Antennas",
-          "value": "€14,80"
+          "value": 14.8
         }
       ],
-      "materialTotal": "€368,60",
+      "materialTotal": 368.6,
       "distribution": [
         {
           "label": "Direct Materials",
@@ -740,7 +752,7 @@
       ],
       "totals": {
         "exWorks": "100%",
-        "totalCosts": "€528,20"
+        "totalCosts": 528.2
       },
       "_note": "Needs a tag ID and its own video; currently reuses the Abrasive Sponges clip."
     }

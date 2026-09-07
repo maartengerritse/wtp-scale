@@ -32,3 +32,7 @@ env/
 *.log
 nohup.out
 .wtp-version
+
+# Per-device settings written by the WTP Scale app (display currency).
+# Must survive git reset --hard on update, so it is never tracked.
+.wtp-settings.json

@@ -4,6 +4,8 @@
 Catches the failure modes that broke the previous version:
   - two products claiming the same RFID tag (Garden Trowel was unreachable
     for months because it reused Hardware Box's ID)
+  - an amount left as a display string. Money is stored as a number so the
+    kiosk can show it in either currency; "€0,12" would render as a literal.
   - a product pointing at a video file that does not exist
   - a product with no tag, which can never be shown
   - videos present on disk that nothing references
@@ -19,13 +21,45 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 VIDEO_DIR = ROOT / "assets" / "video"
 
-REQUIRED = ("id", "name", "video", "materials", "materialTotal", "distribution", "totals")
+REQUIRED = ("id", "name", "materials", "materialTotal", "distribution", "totals")
+CURRENCIES = ("EUR", "USD")
+
+
+def check_amounts(product, errors):
+    """Every money field must be a number, not a pre-formatted string."""
+    name = product.get("name", product.get("id", "<unnamed>"))
+
+    def number(value, where):
+        if isinstance(value, str):
+            errors.append(f"{name}: {where} is the string {value!r}; it must be a number")
+        elif value is not None and not isinstance(value, (int, float)):
+            errors.append(f"{name}: {where} is not a number")
+
+    for i, m in enumerate(product.get("materials") or []):
+        number(m.get("value"), f"materials[{i}] ({m.get('label', '?')})")
+    number(product.get("materialTotal"), "materialTotal")
+    number((product.get("totals") or {}).get("totalCosts"), "totals.totalCosts")
+    for key in ("social", "environmental", "total", "co2eq"):
+        if (product.get("sustainability") or {}).get(key) is not None:
+            number(product["sustainability"][key], f"sustainability.{key}")
+
+    currency = product.get("currency")
+    if currency is not None and currency not in CURRENCIES:
+        errors.append(f"{name}: currency {currency!r} is not one of {CURRENCIES}")
 
 
 def main():
     errors, warnings = [], []
     doc = json.loads((ROOT / "products.json").read_text(encoding="utf-8"))
     products = doc.get("products", [])
+
+    config = doc.get("config", {})
+    if config.get("currency") not in CURRENCIES:
+        print(f"ERROR  config.currency must be one of {CURRENCIES}")
+        return 1
+    if not isinstance(config.get("usdPerEur"), (int, float)):
+        print("ERROR  config.usdPerEur must be a number")
+        return 1
 
     if not products:
         print("products.json contains no products")
@@ -43,6 +77,10 @@ def main():
                 errors.append(f"{name}: missing required field '{field}'")
 
         seen_ids[p.get("id")].append(name)
+        check_amounts(p, errors)
+
+        if not p.get("video"):
+            warnings.append(f"{name}: no video yet")
 
         tags = p.get("tagIds") or []
         if not tags:
@@ -82,6 +120,28 @@ def main():
         print(f"ERROR  {e}")
 
     print()
+    # The staged file is not loaded by the kiosk, but it must be structurally
+    # sound so a product cannot be promoted broken.
+    pending_path = ROOT / "products-pending.json"
+    if pending_path.exists():
+        pending = json.loads(pending_path.read_text(encoding="utf-8")).get("products", [])
+        pending_errors = []
+        for p in pending:
+            for field in REQUIRED:
+                if not p.get(field):
+                    pending_errors.append(f"{p.get('id', '?')}: missing '{field}'")
+            check_amounts(p, pending_errors)
+            if p.get("id") in seen_ids:
+                pending_errors.append(f"{p['id']}: id already used in products.json")
+            for t in p.get("tagIds") or []:
+                if str(t) in seen_tags:
+                    pending_errors.append(f"{p['id']}: tag {t} already used in products.json")
+        for e in pending_errors:
+            print(f"ERROR  products-pending: {e}")
+        errors.extend(pending_errors)
+        print(f"\n{len(pending)} products staged in products-pending.json, "
+              "awaiting a video and a tag")
+
     print(f"{len(products)} products, {sum(len(p.get('tagIds') or []) for p in products)} tags, "
           f"{len(used_videos)} videos referenced")
     if errors:

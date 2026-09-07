@@ -26,8 +26,9 @@ A minimal entry:
   "name": "Garden Rake",
   "subtitle": "Steel & wood, 1 piece",
   "video": "product-10.mp4",
-  "materials": [{ "label": "Steel head", "value": "€0,42" }],
-  "materialTotal": "€0,42",
+  "currency": "EUR",
+  "materials": [{ "label": "Steel head", "value": 0.42 }],
+  "materialTotal": 0.42,
   "distribution": [
     { "label": "Direct Materials", "value": "48.0%", "bold": true },
     { "label": "Direct Labour (China)", "value": "2.1%" },
@@ -36,7 +37,7 @@ A minimal entry:
     { "label": "GSA & Other Expenses", "value": "33.0%" },
     { "label": "Profit before Taxes", "value": "7.5%" }
   ],
-  "totals": { "exWorks": "100%", "totalCosts": "€0,88" }
+  "totals": { "exWorks": "100%", "totalCosts": 0.88 }
 }
 ```
 
@@ -49,9 +50,36 @@ Optional blocks — **leave them out and they simply do not appear on screen**:
   "origin": { "country": "Germany", "code": "de" }
 },
 "sustainability": {
-  "social": "€0,18", "environmental": "€0,92",
-  "total": "€1,10", "co2eq": "0,88"
+  "social": 0.18, "environmental": 0.92,
+  "total": 1.10, "co2eq": 0.88
 }
+```
+
+### Money and currency
+
+**Amounts are numbers, not strings** — `0.42`, never `"€0,42"`. The kiosk can
+display either currency, so it needs to convert, and it formats the result
+itself: comma decimal separator, the source's own precision, and the right
+symbol. Percentages stay strings because they do not convert.
+
+`"currency"` on a product says which currency Buynamics exported it in — the
+figures are never rewritten, only converted for display. Products without it
+inherit `config.currency`. Today the four exported in USD are Nitrile Gloves,
+AA Battery, Screwdriver and Abrasive Sponges.
+
+`config.usdPerEur` is the rate, in one place. The Pi is offline and cannot
+look one up, so **converted figures are approximate and the screen does not
+say so** — worth remembering before showing a customer a converted price.
+
+### Adding a product that has no video or tag yet
+
+Cost data usually arrives before the video and the RFID tag. Put the entry in
+`products-pending.json`, which the kiosk does not load, and move it across
+when both exist:
+
+```bash
+python3 tools/promote-pending.py            # what is waiting
+python3 tools/promote-pending.py aa-battery # asks for the video and tag
 ```
 
 ### Timing
@@ -123,8 +151,13 @@ Double-click **WTP Scale** on the Pi desktop:
 | Restart kiosk | Restarts without downloading |
 | Show status | Whether the reader is running, and the data check |
 | Log | Live feed of tag reads (`tag read -> product -> id`, or `tag not recognised -> ignored`), screen changes and reader health |
+| Currency | Switches the product pages between EUR and USD. Applies within a second; no restart needed |
 
 A line under the title shows whether the kiosk is currently running.
+
+The currency choice is stored in `.wtp-settings.json`, which is deliberately
+untracked: it belongs to that Pi and survives every update. The two scales can
+therefore be set differently.
 
 Updates need the Pi online — do it at the hotel or office, not on the stand.
 
@@ -188,6 +221,7 @@ placing a product on the scale, **Escape** to lift it.
 | `tools/encode-videos.sh` | Convert new footage to the Pi-safe format |
 | `tools/key-video.sh` | Replace a clip's blue studio background with the brand orange |
 | `tools/add-product.py` | Add a product by answering questions |
+| `tools/promote-pending.py` | Move a staged product into products.json once it has a video and a tag |
 | `pi/inspect.py` | Ask the live kiosk page about its videos and current view |
 | `pi/debug.sh` | Collect everything needed to diagnose a problem on the Pi |
 

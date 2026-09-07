@@ -24,6 +24,7 @@
   var loadingTimers = [];
   var clearTimer = null;
   var lastSeenTag = null;
+  var displayCurrency = null;   // what the page is currently rendering in
 
   var el = {
     views: {
@@ -81,6 +82,48 @@
       node.parentElement.classList.toggle("is-empty", !value);
     }
   }
+
+  /* ----------------------------------------------------------- currency --
+
+     Amounts in products.json are numbers in the currency each product was
+     exported in ("currency" on the product, else config.currency). The kiosk
+     can display either, converting at config.usdPerEur -- a fixed rate, since
+     the Pi is offline and cannot look one up. */
+
+  var SYMBOLS = { EUR: "€", USD: "$" };
+
+  function convert(amount, from, to) {
+    if (from === to) return amount;
+    var rate = (data && data.config && data.config.usdPerEur) || 1;
+    return from === "EUR" ? amount * rate : amount / rate;
+  }
+
+  /* How many decimals an amount is quoted to: round to 4, drop trailing
+     zeros, keep at least 2. This rule reproduces almost every amount the file
+     used to carry as a display string. */
+  function decimalsFor(value) {
+    var frac = (value.toFixed(4).replace(/0+$/, "").split(".")[1] || "");
+    return Math.max(2, frac.length);
+  }
+
+  function decimalise(value, decimals) {
+    return value.toFixed(decimals).replace(".", ",");
+  }
+
+  function money(amount, sourceCurrency) {
+    if (typeof amount !== "number" || isNaN(amount)) return "";
+    var from = sourceCurrency || (data && data.config && data.config.currency) || "EUR";
+    var to = displayCurrency || from;
+    // Quote the converted figure to the same precision as the source, so a
+    // €0,08 material does not become $0,0936 through the exchange rate.
+    return (SYMBOLS[to] || "") +
+           decimalise(convert(amount, from, to), decimalsFor(amount));
+  }
+
+  function weight(value) {
+    return typeof value === "number" ? decimalise(value, decimalsFor(value)) : "";
+  }
+
 
   /* Play a video defensively.
      autoplay can be refused, and a video that is already buffered may never
@@ -172,12 +215,14 @@
   /* ------------------------------------------------------------- render -- */
 
   function renderReceipt(p) {
+    var cur = p.currency;
     el.materials.textContent = "";
     (p.materials || []).forEach(function (m) {
-      el.materials.appendChild(row(m.label, m.value));
+      el.materials.appendChild(row(m.label, money(m.value, cur)));
     });
-    if (p.materialTotal) {
-      el.materials.appendChild(row("Total Material Costs", p.materialTotal, "row--strong row--rule"));
+    if (typeof p.materialTotal === "number") {
+      el.materials.appendChild(
+        row("Total Material Costs", money(p.materialTotal, cur), "row--strong row--rule"));
     }
 
     el.distribution.textContent = "";
@@ -192,8 +237,8 @@
       if (p.totals.exWorks) {
         el.totals.appendChild(row("Total (ex works)", p.totals.exWorks, "row--strong row--rule"));
       }
-      if (p.totals.totalCosts) {
-        el.totals.appendChild(row("Total Costs", p.totals.totalCosts, "row--grand"));
+      if (typeof p.totals.totalCosts === "number") {
+        el.totals.appendChild(row("Total Costs", money(p.totals.totalCosts, cur), "row--grand"));
       }
     }
   }
@@ -250,10 +295,10 @@
     var s = p.sustainability;
     var hasImpact = s && (s.social || s.environmental || s.total || s.co2eq);
     if (hasImpact) {
-      document.getElementById("impact-social").textContent = s.social || "—";
-      document.getElementById("impact-environmental").textContent = s.environmental || "—";
-      document.getElementById("impact-total").textContent = s.total || "—";
-      document.getElementById("impact-co2").textContent = s.co2eq || "—";
+      document.getElementById("impact-social").textContent = money(s.social, p.currency) || "—";
+      document.getElementById("impact-environmental").textContent = money(s.environmental, p.currency) || "—";
+      document.getElementById("impact-total").textContent = money(s.total, p.currency) || "—";
+      document.getElementById("impact-co2").textContent = weight(s.co2eq) || "—";
     }
     el.impact.hidden = !hasImpact;
 
@@ -358,10 +403,27 @@
         // Discreet on-screen warning when the reader hardware is not answering,
         // so a loose cable is obvious at the stand instead of looking like
         // "tags just don't work today".
+        // The Pi app writes the chosen currency; apply it live rather than
+        // making someone restart the kiosk to see the switch.
+        var wanted = (s && s.currency) ||
+                     (data && data.config && data.config.currency) || "EUR";
+        if (wanted !== displayCurrency) {
+          displayCurrency = wanted;
+          report("currency", { currency: wanted });
+          if (view === "product" && currentProduct) {
+            renderReceipt(currentProduct);
+            renderDetail(currentProduct);
+            fitReceipt();
+          }
+        }
+
         var missing = s && s.reader === "missing";
         el.readerWarn.hidden = !missing;
         if (missing) el.readerWarn.textContent = "RFID reader not detected" + (s.readerInfo ? " \u2013 " + s.readerInfo : "");
-        onTag(tag);
+        // Dev mode drives the views from the keyboard, so ignore the reader
+        // here -- but still take the currency, so the switch is testable
+        // without hardware.
+        if (!DEV) onTag(tag);
         lastSeenTag = tag;
       })
       .catch(function () { /* reader service not up yet; keep polling */ })
@@ -427,6 +489,7 @@
         (p.tagIds || []).forEach(function (t) { byTag[String(t)] = p; });
       });
 
+      displayCurrency = (data.config && data.config.currency) || "EUR";
       buildSteps();
       el.footer.textContent = (data.config && data.config.footer) || "";
 
@@ -451,7 +514,7 @@
       });
 
       if (DEV) enableDevMode();
-      else poll();
+      poll();
     })
     .catch(function (err) {
       fatal(

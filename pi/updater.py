@@ -11,6 +11,8 @@ Double-click the icon on the desktop, press a button. Nothing else to know.
   Show status         is the reader running, which version is installed
   Log                 live feed: every tag read, what it mapped to, screen
                       changes and reader health, as they happen
+  Currency            switch the product pages between EUR and USD; applies
+                      immediately, no restart needed
 
 A line under the title shows whether the kiosk is currently running, so you
 can tell at a glance without reading the log.
@@ -19,6 +21,7 @@ Deliberately Tkinter: it ships with Raspberry Pi OS (python3-tk), needs no
 network at launch and no extra packages.
 """
 
+import json
 import queue
 import subprocess
 import threading
@@ -28,6 +31,8 @@ from tkinter import font as tkfont
 from tkinter import scrolledtext
 
 REPO = Path(__file__).resolve().parent.parent
+SETTINGS = REPO / ".wtp-settings.json"
+PRODUCTS = REPO / "products.json"
 
 BLUE = "#002e5a"
 ORANGE = "#ff6b26"
@@ -63,7 +68,8 @@ class Updater(tk.Tk):
             (("Check for updates", self.check), ("Update now", self.update_now),
              ("Log", self.toggle_log)),
             (("Start kiosk", self.start), ("Stop kiosk", self.stop),
-             ("Restart kiosk", self.restart), ("Show status", self.status)),
+             ("Restart kiosk", self.restart), ("Show status", self.status),
+             ("Currency", self.toggle_currency)),
         ):
             bar = tk.Frame(self, bg=BLUE)
             bar.pack(fill="x", padx=18, pady=(0, 6))
@@ -85,6 +91,7 @@ class Updater(tk.Tk):
         self.log.configure(state="disabled")
 
         self.show_version()
+        self.show_currency()
         self.refresh_state()
         self.after(120, self.drain)
 
@@ -166,6 +173,42 @@ class Updater(tk.Tk):
 
         self.state.configure(text=text, fg=colour)
         self.after(3000, self.refresh_state)
+
+    # ------------------------------------------------------------ currency
+
+    def currency(self):
+        """Device setting if present, otherwise the file's default."""
+        try:
+            chosen = json.loads(SETTINGS.read_text(encoding="utf-8")).get("currency")
+            if chosen in ("EUR", "USD"):
+                return chosen
+        except (OSError, ValueError):
+            pass
+        try:
+            return json.loads(PRODUCTS.read_text(encoding="utf-8"))["config"].get("currency", "EUR")
+        except (OSError, ValueError, KeyError):
+            return "EUR"
+
+    def show_currency(self):
+        self.by_text["Currency"].configure(text=f"Currency: {self.currency()}")
+
+    def toggle_currency(self):
+        new = "USD" if self.currency() == "EUR" else "EUR"
+        try:
+            settings = json.loads(SETTINGS.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            settings = {}
+        settings["currency"] = new
+        try:
+            SETTINGS.write_text(json.dumps(settings, indent=2) + "\n", encoding="utf-8")
+        except OSError as exc:
+            self.output.put(f"Could not save the setting: {exc}\n")
+            return
+        self.show_currency()
+        # The page polls /state, so it repaints within a moment; nothing to
+        # restart. Amounts are converted at config.usdPerEur in products.json.
+        self.output.put(f"Product pages now show {new}. "
+                        "The kiosk picks this up within a second.\n")
 
     # ------------------------------------------------------------ live log
 
