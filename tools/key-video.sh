@@ -54,13 +54,13 @@ echo "backdrop chroma Cb=${UB} Cr=${VB}; matte R=${R} M=${M}"
 
 MATTE="if(lt(sqrt(pow(cb(X,Y)-${UB},2)+pow(cr(X,Y)-${VB},2)),${R})*gt(sqrt(pow(cb(X,Y)-128,2)+pow(cr(X,Y)-128,2)),${M}),0,255)"
 
-# Chroma is encoded with the BT.601 matrix. The kiosk uses the Pi's hardware
-# H.264 decoder (a Pi 4 cannot software-decode 1080-class video smoothly), and
-# that path converts with BT.601 whatever the stream is tagged: measured on
-# the device, a 601 clip paints #FF6A27 against a #FF6B26 page while a 709 one
-# paints #EE5D28. Software decode is exactly the opposite, which is why these
-# clips must not be allowed to fall back to it -- see the lazy source handling
-# in assets/js/kiosk.js.
+# Chroma is encoded with BT.709, which is what Chromium on this Pi honours.
+# Measured directly, by playing solid-colour clips of the brand orange in the
+# kiosk and sampling the screen: a 709 clip paints #FB6823, a 601 clip paints
+# #FF7521. An earlier note here claimed the opposite; that was wrong, and it
+# sent this round in circles. The residual gap between #FB6823 and the brand
+# #FF6B26 is the limited-range round trip, and the page compensates for it --
+# see --video-orange in assets/css/kiosk.css.
 ffmpeg -nostdin -v error -y -i "$IN" \
   -f lavfi -i "color=c=${BRAND}:s=${W}x${H}" \
   -filter_complex \
@@ -70,9 +70,9 @@ ffmpeg -nostdin -v error -y -i "$IN" \
      [rgb][mask]alphamerge,despill=type=blue:mix=0.5:expand=0[fg];\
      [1:v]format=rgba[bg];\
      [bg][fg]overlay=shortest=1,scale=-2:min(ih\\,1080),\
-     scale=out_color_matrix=bt601:out_range=tv,format=yuv420p,setsar=${SAR}" \
+     scale=out_color_matrix=bt709:out_range=tv,format=yuv420p,setsar=${SAR}" \
   -c:v libx264 -profile:v high -pix_fmt yuv420p -level 4.0 \
-  -colorspace bt470bg -color_range tv \
+  -colorspace bt709 -color_primaries bt709 -color_trc bt709 -color_range tv \
   -r 30 -crf 21 -maxrate 5M -bufsize 10M \
   -an -movflags +faststart \
   "$OUT"

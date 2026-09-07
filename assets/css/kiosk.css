@@ -34,6 +34,14 @@
 :root {
   --blue: #002e5a;
   --orange: #ff6b26;
+  /* The orange the keyed presenter clips actually paint on the Pi. Encoding
+     the brand #FF6B26 through H.264 limited range and back lands on #FB6823 --
+     a 1.5% shift no eye catches on its own, but enough to outline the video as
+     a rectangle against a page painted with the exact brand value. The two
+     views that carry a presenter use this instead, so the join is invisible;
+     everything else keeps the true brand orange. Re-measure with grim if the
+     clips are ever re-encoded. */
+  --video-orange: #fb6823;
   --neutral: #f1f1f1;
   --white: #fff;
   --ink: #111;
@@ -58,7 +66,7 @@ html, body {
   height: 100%;
   width: 100%;
   overflow: hidden;
-  background: var(--orange);
+  background: var(--video-orange);
   color: var(--ink);
   cursor: none;                 /* kiosk: never show a pointer */
   -webkit-font-smoothing: antialiased;
@@ -85,7 +93,7 @@ html, body {
    edge of the video rectangle visible again. Depth comes from a contained
    glow behind the text instead, which never reaches the presenter. */
 .view--welcome,
-.view--loading { background: var(--orange); color: var(--white); }
+.view--loading { background: var(--video-orange); color: var(--white); }
 
 .glow-host { position: relative; }
 .glow-host::before {
