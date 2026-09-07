@@ -18,7 +18,7 @@ from pathlib import Path
 def probe(path):
     out = subprocess.run(
         ["ffprobe", "-v", "error", "-select_streams", "v:0",
-         "-show_entries", "stream=codec_name,profile,pix_fmt,width,height",
+         "-show_entries", "stream=codec_name,profile,pix_fmt,width,height,sample_aspect_ratio",
          "-of", "json", str(path)],
         capture_output=True, text=True, check=True,
     )
@@ -72,6 +72,14 @@ def main(argv):
             problems.append(f"pix_fmt={pix_fmt} (not 8-bit)")
         if "10" in profile:
             problems.append(f"profile={profile} (10-bit, will not decode)")
+
+        # A non-square pixel aspect ratio is honoured by desktop browsers but
+        # not by Chromium on the Pi, which shows the raw frame: a 4:5 clip
+        # stored as 1920x1080 rendered as a squashed 16:9 there. Square pixels
+        # look the same everywhere, so anything else is a defect.
+        sar = stream.get("sample_aspect_ratio", "1:1")
+        if sar not in ("1:1", "0:1", "N/A"):
+            problems.append(f"pixel aspect {sar} (not square; Pi shows it distorted)")
 
         order = atom_order(path)
         if "moov" in order and "mdat" in order and order.index("moov") > order.index("mdat"):

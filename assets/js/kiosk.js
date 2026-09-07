@@ -342,6 +342,17 @@
       buildSteps();
       el.footer.textContent = (data.config && data.config.footer) || "";
 
+      // The <video loop> attribute should be enough, but the Pi's hardware
+      // decoder has been seen to stop at the end of a clip instead of looping.
+      // Restarting on `ended` costs nothing and guarantees the ambient clips
+      // never freeze on a last frame during a long day on the stand.
+      [el.welcomeVideo, el.loadingVideo, el.productVideo].forEach(function (v) {
+        v.addEventListener("ended", function () {
+          v.currentTime = 0;
+          play(v);
+        });
+      });
+
       show("welcome");
       play(el.welcomeVideo);
 

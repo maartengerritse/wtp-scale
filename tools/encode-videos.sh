@@ -7,6 +7,12 @@
 #   -level 4.0                         within Pi hardware decode limits at 1080p30
 #   -movflags +faststart               moov atom first, so playback starts immediately
 #   -an                                every video is muted; audio is dead weight
+#   scale=iw*sar:ih ... setsar=1       bake the display shape into the pixels.
+#                                      Chromium on the Pi ignores a non-square
+#                                      pixel aspect ratio and shows the raw
+#                                      frame, so a 4:5 clip stored as 1920x1080
+#                                      came out as a squashed 16:9. Square
+#                                      pixels look the same everywhere.
 #   no padding                         aspect ratio is handled in CSS by object-fit
 #
 # Usage: tools/encode-videos.sh [indir] [outdir]
@@ -22,7 +28,7 @@ for f in "$IN"/*.mp4; do
   echo "==> $name"
   ffmpeg -nostdin -v error -y -i "$f" \
     -c:v libx264 -profile:v high -pix_fmt yuv420p -level 4.0 \
-    -vf "scale=1920:1080:force_original_aspect_ratio=decrease" \
+    -vf "scale=iw*sar:ih,scale=1920:1080:force_original_aspect_ratio=decrease,setsar=1" \
     -r 30 -crf 23 -maxrate 4M -bufsize 8M \
     -an -movflags +faststart \
     "$OUT/$name"
