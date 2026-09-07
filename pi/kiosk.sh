@@ -10,32 +10,38 @@ set -euo pipefail
 PORT="${WTP_PORT:-8080}"
 URL="http://127.0.0.1:${PORT}/"
 
-# Work out how to talk to the screen. A systemd user service does not inherit
-# the desktop session's environment, so this has to be discovered rather than
-# assumed: Pi OS Bookworm runs Wayland by default, older releases run X11, and
-# under X11 a missing XAUTHORITY makes Chromium fail with nothing on screen.
+# Work out how to talk to the screen.
+#
+# Pi OS Bookworm runs Wayland (Wayfire), but Chromium's native Wayland backend
+# does not accept the compositor's fullscreen size here: --kiosk and
+# --start-fullscreen both apply, and the window still comes up about 500x40 in
+# the corner. Verified on Scale 001 by screenshotting a live instance both
+# ways. Under XWayland the same flags give a correct 1920x1080 kiosk, so X11
+# is the default even on a Wayland desktop.
+#
+# Set WTP_USE_WAYLAND=1 to force the native Wayland backend instead.
 RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
 export XDG_RUNTIME_DIR="$RUNTIME_DIR"
 
-if [ -z "${WAYLAND_DISPLAY:-}" ]; then
-  for sock in "$RUNTIME_DIR"/wayland-*; do
-    case "$sock" in *'*') break;; esac          # no match, glob left literal
-    [ -S "$sock" ] && export WAYLAND_DISPLAY="$(basename "$sock")" && break
-  done
-fi
-
-if [ -n "${WAYLAND_DISPLAY:-}" ]; then
+if [ "${WTP_USE_WAYLAND:-0}" = "1" ] && [ -n "${WAYLAND_DISPLAY:-}" ]; then
   SESSION=wayland
   OZONE=(--ozone-platform=wayland)
 else
   SESSION=x11
   OZONE=()
-  export DISPLAY="${DISPLAY:-:0}"
-  # Under X11 the service needs the cookie to open the display at all.
-  if [ -z "${XAUTHORITY:-}" ]; then
-    for xauth in "$HOME/.Xauthority" "$RUNTIME_DIR/gdm/Xauthority"; do
-      [ -f "$xauth" ] && export XAUTHORITY="$xauth" && break
+  unset WAYLAND_DISPLAY                 # or Chromium picks Wayland regardless
+  # XWayland is normally :0 under Wayfire; fall back to whatever socket exists.
+  if [ -z "${DISPLAY:-}" ]; then
+    for sock in /tmp/.X11-unix/X*; do
+      case "$sock" in *'*') break;; esac
+      export DISPLAY=":${sock##*/X}"
+      break
     done
+    export DISPLAY="${DISPLAY:-:0}"
+  fi
+  # Under a real X11 session the cookie is needed; harmless under XWayland.
+  if [ -z "${XAUTHORITY:-}" ] && [ -f "$HOME/.Xauthority" ]; then
+    export XAUTHORITY="$HOME/.Xauthority"
   fi
 fi
 
