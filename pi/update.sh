@@ -42,25 +42,15 @@ step() { printf '\n%s\n' "$1"; }
 fail() { printf '\n%s\n' "$1"; exit 1; }
 
 # --------------------------------------------------------------- shared tail
-
-post_update() {
-  step "Checking the product data..."
-  python3 tools/validate.py || echo "  (see the warnings above)"
-
-  step "Checking the videos..."
-  if python3 tools/check-videos.py >/tmp/wtp-video-check 2>&1; then
-    grep -v '^ok ' /tmp/wtp-video-check | grep -v '^$' | sed 's/^/  /'
-  else
-    grep -E '^(FAIL|Some)' /tmp/wtp-video-check | sed 's/^/  /'
-    echo "  Those clips will not play on this Pi."
-  fi
-
-  # Service definitions live in the repo but run from ~/.config/systemd/user,
-  # so a change to them would otherwise never reach the device through this
-  # button. Reinstall when they differ; `reenable` moves the wants-symlink if
-  # WantedBy changed.
+# Service definitions live in the repo but run from ~/.config/systemd/user, so
+# a change to them would otherwise never reach the device through the Update
+# button. Reinstall when they differ; `reenable` moves the wants-symlink if
+# WantedBy changed. Idempotent, so it also runs when already up to date: a
+# fresh update.sh (which runs from a copy of itself, one run behind) must be
+# able to fix the units without a new commit to hang it on.
+sync_units() {
   step "Checking the service definitions..."
-  local unit_dir="$HOME/.config/systemd/user" changed=false
+  local unit_dir="$HOME/.config/systemd/user" changed=false unit
   mkdir -p "$unit_dir"
   for unit in wtp-kiosk.service wtp-browser.service; do
     sed "s#__REPO__#$PWD#g" "pi/$unit" > "/tmp/$unit.new"
@@ -76,6 +66,22 @@ post_update() {
   else
     echo "  Unchanged."
   fi
+}
+
+
+post_update() {
+  step "Checking the product data..."
+  python3 tools/validate.py || echo "  (see the warnings above)"
+
+  step "Checking the videos..."
+  if python3 tools/check-videos.py >/tmp/wtp-video-check 2>&1; then
+    grep -v '^ok ' /tmp/wtp-video-check | grep -v '^$' | sed 's/^/  /'
+  else
+    grep -E '^(FAIL|Some)' /tmp/wtp-video-check | sed 's/^/  /'
+    echo "  Those clips will not play on this Pi."
+  fi
+
+  sync_units
 
   step "Restarting the kiosk..."
   systemctl --user reset-failed wtp-kiosk.service wtp-browser.service 2>/dev/null
@@ -153,6 +159,7 @@ run_https_update() {
   if [ "$local_sha" = "$remote" ]; then
     echo "You are up to date. (checked over HTTPS)"
     echo "  ${remote:0:7}"
+    $CHECK_ONLY || sync_units
     exit 0
   fi
 
@@ -201,6 +208,7 @@ REMOTE=$(git rev-parse '@{u}')
 if [ "$LOCAL" = "$REMOTE" ]; then
   echo "You are up to date."
   echo "  $(git log -1 --format='%h  %cd  %s' --date=format:'%d %b %Y')"
+  $CHECK_ONLY || sync_units
   exit 0
 fi
 
