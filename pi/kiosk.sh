@@ -28,8 +28,14 @@ if [ "${WTP_USE_WAYLAND:-0}" = "1" ] && [ -n "${WAYLAND_DISPLAY:-}" ]; then
   OZONE=(--ozone-platform=wayland)
 else
   SESSION=x11
-  OZONE=()
-  unset WAYLAND_DISPLAY                 # or Chromium picks Wayland regardless
+  # Pi OS's chromium-browser wrapper adds --ozone-platform=wayland by itself
+  # when the session looks like Wayland, so simply unsetting WAYLAND_DISPLAY
+  # left it trying Wayland with no socket ("Failed to connect to Wayland
+  # display"). Our flags are appended after the wrapper's, and Chromium takes
+  # the last value for a switch, so name x11 explicitly to win.
+  OZONE=(--ozone-platform=x11)
+  unset WAYLAND_DISPLAY
+  export XDG_SESSION_TYPE=x11
   # XWayland is normally :0 under Wayfire; fall back to whatever socket exists.
   if [ -z "${DISPLAY:-}" ]; then
     for sock in /tmp/.X11-unix/X*; do
