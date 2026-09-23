@@ -121,9 +121,9 @@ mkdir -p "$PROFILE"
 # software-decode 1080-class video smoothly -- forcing software made playback
 # stutter. The colour inconsistency that briefly justified doing so came from
 # several clips competing for decoder slots, one of them falling back to
-# software, and the two paths converting colour differently. kiosk.js now
-# attaches a source only to the clip actually on screen, so one decode is ever
-# in flight and every clip gets the hardware path.
+# software, and the two paths converting colour differently. The decoder has
+# two slots, so kiosk.js keeps exactly two clips attached -- the one on screen
+# and the next one -- and every clip gets the hardware path.
 echo "kiosk: launching $CHROME at $URL"
 exec "$CHROME" \
   ${OZONE[@]+"${OZONE[@]}"} \

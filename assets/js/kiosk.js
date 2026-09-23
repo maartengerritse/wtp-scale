@@ -169,20 +169,72 @@
      not take escalates to a full reload of the element. */
   var watch = { lastT: {}, stuckSince: {}, restartedAt: {}, loadingSince: {} };
 
-  /* Every clip keeps its source, and the product clip starts fetching the
-     moment a tag is read rather than when its view appears.
+  /* At most two clips hold a source at any time: the one on screen and the
+     one that comes next.
 
-     Detaching the off-screen sources was tried, on a theory that clips were
-     competing for the Pi's hardware decoder slots. That theory was wrong --
-     the colour difference was BT.601 versus BT.709 -- and the cost was real:
-     every view change reloaded a clip, so the presenter took ~3s to appear
-     and a product clip ~2s. Both should be instant, so nothing is detached
-     and the product clip buffers during the loading checklist. */
+     The Pi's hardware H.264 decoder has exactly two slots. Chromium logs
+     "Too many decoder instances, max=2" and the kernel "failed to create
+     component ril.video_decode" when a third clip asks for one. Keeping all
+     three attached (as e24f08e did) meant every product clip evicted the
+     welcome or loading clip into MEDIA_ERR_DECODE, which is the frozen
+     presenter, and a clip that falls back to software decode paints BT.601
+     colour, which is the darker orange rectangle.
+
+     Detaching everything off screen fixed that but made each switch wait
+     ~3s for a cold clip. The sequence is fixed, though, so the next clip can
+     be kept warm: welcome keeps loading ready, loading buffers the product
+     during the checklist, and the product keeps welcome ready. The third
+     clip is always released first.
+
+     For the presenter loops "warm" means playing, muted and hidden, not
+     paused. A paused clip that has sat for a while takes ~3s to produce its
+     first frame on this decoder, measured even with nothing else going on; a
+     playing one is on screen within 0.4s of the switch, so the presenter
+     joins mid-loop. The product clip only waits out the 6s checklist, which
+     is short enough to stay paused, so it still starts from its first frame. */
+  var WARM = {
+    welcome: ["welcomeVideo", "loadingVideo"],
+    loading: ["loadingVideo", "productVideo"],
+    product: ["productVideo", "welcomeVideo"]
+  };
+
   function attachSource(v) {
     var want = v.getAttribute("data-src");
     if (!want || v.getAttribute("src") === want) return;
     v.setAttribute("src", want);
     v.load();
+  }
+
+  function detachSource(v) {
+    if (!v.hasAttribute("src")) return;
+    v.pause();
+    v.removeAttribute("src");
+    v.load();                 // with no src this releases the decoder slot
+  }
+
+  function isWarm(v) {
+    return (WARM[view] || []).some(function (key) { return el[key] === v; });
+  }
+
+  function shouldPlay(v) {
+    return isWarm(v) && (v !== el.productVideo || view === "product");
+  }
+
+  // Release before attaching, so there is never a moment with three decoders.
+  //
+  // Opening a decoder still costs ~3s on this Pi: the firmware's first attempt
+  // times out ("failed to create component ril.video_decode") and Chromium's
+  // retry succeeds. Delaying the attach does not avoid it. It is harmless
+  // here because the clip being opened is never the one on screen.
+  function settleSources() {
+    ["welcomeVideo", "loadingVideo", "productVideo"].forEach(function (key) {
+      if (!isWarm(el[key])) detachSource(el[key]);
+    });
+    (WARM[view] || []).forEach(function (key) {
+      var v = el[key];
+      attachSource(v);
+      if (shouldPlay(v)) play(v); else v.pause();
+    });
   }
 
   function activeVideo() {
@@ -191,8 +243,9 @@
     return el.productVideo;
   }
 
+  // Watches both warm clips, not only the visible one: the hidden welcome
+  // clip can play for minutes behind a product and still needs its early wrap.
   function watchVideos() {
-    var active = activeVideo();
     var now = Date.now();
     var cfg = (data && data.config) || {};
     // The early wrap exists for the 78s welcome clip, whose last ~3s the Pi
@@ -202,12 +255,28 @@
 
     [el.welcomeVideo, el.loadingVideo, el.productVideo].forEach(function (v) {
       var id = v.id;
-      if (v !== active || !v.currentSrc) {
+      if (!shouldPlay(v) || !v.currentSrc) {
         watch.stuckSince[id] = 0;
         watch.loadingSince[id] = 0;
         delete watch.lastT[id];
         return;
       }
+      // A clip in an error state (MEDIA_ERR_DECODE when it lost its decoder
+      // slot) ignores currentTime and play(); only load() clears it. Rewinding
+      // it every 2s is what kept the presenter frozen all day.
+      if (v.error) {
+        if (!(watch.restartedAt[id] && now - watch.restartedAt[id] < 5000)) {
+          report("video-reload", { id: id, reason: "error", error: v.error.code });
+          v.load();
+          play(v);
+          watch.restartedAt[id] = now;
+        }
+        watch.stuckSince[id] = 0;
+        watch.loadingSince[id] = 0;
+        delete watch.lastT[id];
+        return;
+      }
+
       if (v.paused) play(v);
 
       var t = v.currentTime;
@@ -359,8 +428,8 @@
     }
     el.impact.hidden = !hasImpact;
 
-    // One <video> reused for every product; the source is attached only while
-    // the product view is on screen.
+    // One <video> reused for every product; settleSources() decides when it
+    // holds a decoder.
     var src = p.video ? "assets/video/" + p.video : "";
     el.productVideo.setAttribute("data-src", src);
     if (view === "product" && src) {
@@ -379,9 +448,8 @@
     view = next;
     report("view", { view: next, product: currentProduct ? currentProduct.id : null });
 
-    var wanted = activeVideo();
-    attachSource(wanted);
-    play(wanted);
+    settleSources();
+    play(activeVideo());
   }
 
   function clearLoadingTimers() {
@@ -393,12 +461,11 @@
     clearLoadingTimers();
     currentProduct = product;
 
-    // Six seconds of checklist is ample time to fetch the clip, so point the
-    // element at it now. By the time the product view appears the first frame
-    // is decoded and it starts instantly.
+    // Six seconds of checklist is ample time to fetch the clip. show("loading")
+    // below attaches it, after releasing the welcome clip's decoder slot, so by
+    // the time the product view appears the first frame is decoded.
     if (product.video) {
       el.productVideo.setAttribute("data-src", "assets/video/" + product.video);
-      attachSource(el.productVideo);
     }
 
     var steps = Array.prototype.slice.call(el.steps.children);
@@ -555,9 +622,7 @@
       });
 
       displayCurrency = (data.config && data.config.currency) || "EUR";
-      // Attached once, at boot, so switching views never waits on a fetch.
-      attachSource(el.welcomeVideo);
-      attachSource(el.loadingVideo);
+      // show("welcome") below attaches the welcome clip and warms loading.
       buildSteps();
       el.footer.textContent = (data.config && data.config.footer) || "";
 
