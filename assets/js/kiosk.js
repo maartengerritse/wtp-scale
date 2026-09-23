@@ -177,8 +177,9 @@
      component ril.video_decode" when a third clip asks for one. Keeping all
      three attached (as e24f08e did) meant every product clip evicted the
      welcome or loading clip into MEDIA_ERR_DECODE, which is the frozen
-     presenter, and a clip that falls back to software decode paints BT.601
-     colour, which is the darker orange rectangle.
+     presenter. (Which decoder a clip ends up on also used to change its
+     colour; the presenter clips are now encoded so both paint the same --
+     see tools/key-video.sh.)
 
      Detaching everything off screen fixed that but made each switch wait
      ~3s for a cold clip. The sequence is fixed, though, so the next clip can

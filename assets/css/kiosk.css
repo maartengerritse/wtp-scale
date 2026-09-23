@@ -34,14 +34,13 @@
 :root {
   --blue: #002e5a;
   --orange: #ff6b26;
-  /* The orange the keyed presenter clips actually paint on the Pi. Encoding
-     the brand #FF6B26 through H.264 limited range and back lands on #FB6823 --
-     a 1.5% shift no eye catches on its own, but enough to outline the video as
-     a rectangle against a page painted with the exact brand value. The two
-     views that carry a presenter use this instead, so the join is invisible;
-     everything else keeps the true brand orange. Re-measure with grim if the
-     clips are ever re-encoded. */
-  --video-orange: #fb6823;
+  /* The orange the keyed presenter clips actually paint on the Pi: the brand
+     #FF6B26 after the H.264 limited-range round trip, measured with grim as
+     #FE6925 on both the hardware and the software decoder (the clips are
+     encoded so the two agree -- see tools/key-video.sh). The two views that
+     carry a presenter use this so the join is invisible; everything else
+     keeps the true brand orange. Re-measure if the clips are re-encoded. */
+  --video-orange: #fe6925;
   --neutral: #f1f1f1;
   --white: #fff;
   --ink: #111;
